@@ -1,9 +1,14 @@
 package cmd
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"log"
+	"os"
+	"runtime"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/BRO3886/google-tasks-cli/utils"
@@ -102,10 +107,43 @@ var createTaskCmd = &cobra.Command{
 			fmt.Printf("[%d] %s\n", index+1, i.Title)
 		}
 		fmt.Printf("Choose an option: ")
+
 		var option int
 		if _, err := fmt.Scan(&option); err != nil {
 			log.Fatalf("Unable to read option: %v", err)
 		}
+
+		fmt.Printf("Title: ")
+		title := getInput()
+		fmt.Printf("Note: ")
+		notes := getInput()
+		fmt.Printf("Due Date (dd/mm/yyyy): ")
+		dateInput := getInput()
+
+		var dateString string
+
+		if dateInput == "" {
+			dateString = ""
+		} else {
+			arr := strings.Split(dateInput, "/")
+			if len(arr) < 3 {
+				color.Red("Time format incorrect")
+				return
+			}
+			y, _ := strconv.Atoi(arr[2])
+			d, _ := strconv.Atoi(arr[0])
+			m, _ := strconv.Atoi(arr[1])
+
+			t := time.Date(y, time.Month(m), d, 12, 0, 0, 0, time.UTC)
+			dateString = t.Format(time.RFC3339)
+		}
+		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
+
+		task, err = createTask(srv, task, list[option-1].Id)
+		if err != nil {
+			log.Fatalf("Unable to create task: %v", err)
+		}
+		color.Green("Task created")
 	},
 }
 
@@ -123,4 +161,23 @@ func getTasks(srv *tasks.Service, id string) ([]*tasks.Task, error) {
 		return nil, errors.New("No Tasklist found")
 	}
 	return r.Items, nil
+}
+
+func createTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks.Task, error) {
+	r, err := srv.Tasks.Insert(tasklistID, task).Do()
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func getInput() string {
+	reader := bufio.NewReader(os.Stdin)
+	title, _ = reader.ReadString('\n')
+	if runtime.GOOS == "windows" {
+		title = strings.Replace(title, "\r\n", "", -1)
+	} else {
+		title = strings.Replace(title, "\n", "", -1)
+	}
+	return title
 }
