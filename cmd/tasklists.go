@@ -3,18 +3,17 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 
+	"github.com/BRO3886/google-tasks-cli/utils"
 	"github.com/spf13/cobra"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/tasks/v1"
 )
 
 // tasklistsCmd represents the tasklists command
 var tasklistsCmd = &cobra.Command{
 	Use:   "tasklists",
-	Short: "TODO: add",
+	Short: "View and create tasklists for currently signed-in account",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -36,20 +35,14 @@ var showlistsCmd = &cobra.Command{
 	Short: "show tasklists",
 	Long:  `Show task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
-		b, err := ioutil.ReadFile("credentials.json")
-		if err != nil {
-			log.Fatalf("Unable to read client secret file: %v", err)
-		}
-		config, err := google.ConfigFromJSON(b, tasks.TasksScope)
-		if err != nil {
-			log.Fatalf("Unable to parse client secret file to config: %v", err)
-		}
-		srv, err := tasks.New(getClient(config))
+		config := utils.ReadCredentials()
+		client := getClient(config)
+		srv, err := tasks.New(client)
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		r, err := srv.Tasklists.List().MaxResults(10).Do()
+		r, err := srv.Tasklists.List().Do()
 		if err != nil {
 			log.Fatalf("Unable to retrieve task lists. %v", err)
 		}
@@ -65,8 +58,35 @@ var showlistsCmd = &cobra.Command{
 	},
 }
 
+var createlistsCmd = &cobra.Command{
+	Use:   "create",
+	Short: "create tasklist",
+	Long:  `TODO:add`,
+	Run: func(cmd *cobra.Command, args []string) {
+		config := utils.ReadCredentials()
+		client := getClient(config)
+		srv, err := tasks.New(client)
+		if err != nil {
+			log.Fatalf("Unable to retrieve tasks Client %v", err)
+		}
+		if title == "" {
+			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
+			return
+		}
+		t := &tasks.TaskList{Title: title}
+		r, err := srv.Tasklists.Insert(t).Do()
+		if err != nil {
+			log.Fatalf("Unable to create task list. %v", err)
+		}
+		fmt.Println("Created: " + r.Title)
+	},
+}
+
+var title string
+
 func init() {
-	tasklistsCmd.AddCommand(showlistsCmd)
+	createlistsCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
+	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd)
 	rootCmd.AddCommand(tasklistsCmd)
 	// Here you will define your flags and configuration settings.
 

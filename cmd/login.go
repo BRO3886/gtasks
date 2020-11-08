@@ -4,15 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/BRO3886/google-tasks-cli/utils"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/tasks/v1"
 )
 
 // loginCmd represents the login command
@@ -21,14 +19,7 @@ var loginCmd = &cobra.Command{
 	Short: "Logging into Google Tasks",
 	Long:  `This command uses the credentials.json file and makes a request to get your tokens`,
 	Run: func(cmd *cobra.Command, args []string) {
-		b, err := ioutil.ReadFile("credentials.json")
-		if err != nil {
-			log.Fatalf("Unable to read client secret file: %v", err)
-		}
-		config, err := google.ConfigFromJSON(b, tasks.TasksScope)
-		if err != nil {
-			log.Fatalf("Unable to parse client secret file to config: %v", err)
-		}
+		config := utils.ReadCredentials()
 		getClient(config)
 	},
 }
