@@ -4,12 +4,48 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/tasks/v1"
 )
+
+// loginCmd represents the login command
+var loginCmd = &cobra.Command{
+	Use:   "login",
+	Short: "Logging into Google Tasks",
+	Long:  `This command uses the credentials.json file and makes a request to get your tokens`,
+	Run: func(cmd *cobra.Command, args []string) {
+		b, err := ioutil.ReadFile("credentials.json")
+		if err != nil {
+			log.Fatalf("Unable to read client secret file: %v", err)
+		}
+		config, err := google.ConfigFromJSON(b, tasks.TasksScope)
+		if err != nil {
+			log.Fatalf("Unable to parse client secret file to config: %v", err)
+		}
+		getClient(config)
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(loginCmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// loginCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// loginCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
@@ -29,7 +65,7 @@ func getClient(config *oauth2.Config) *http.Client {
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Go to the following link in your browser then type the "+
-		"authorization code: \n%v\n", authURL)
+		"authorization code: \n%v\nEnter the code: ", authURL)
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
