@@ -14,12 +14,17 @@ import (
 var tasklistsCmd = &cobra.Command{
 	Use:   "tasklists",
 	Short: "View and create tasklists for currently signed-in account",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Long: `
+	View and create tasklists for currently signed-in account
+	
+	View tasklists:
+	gtasks tasklists show
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Create tasklist:
+	gtasks tasklists create -t <TITLE>
+	gtasks tasklists create --title <TITLE>
+
+	`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errors.New("requires at least one arg. Use -h to show the list of available commands")
@@ -42,19 +47,15 @@ var showlistsCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		r, err := srv.Tasklists.List().Do()
+		list, err := getTaskLists(srv)
 		if err != nil {
-			log.Fatalf("Unable to retrieve task lists. %v", err)
+			log.Fatalf("Error %v", err)
 		}
 
-		fmt.Println("Task Lists:")
-		if len(r.Items) > 0 {
-			for _, i := range r.Items {
-				fmt.Printf("%s (%s)\n", i.Title, i.Id)
-			}
-		} else {
-			fmt.Print("No task lists found.")
+		for _, i := range list {
+			fmt.Printf("%s (%s)\n", i.Title, i.Id)
 		}
+
 	},
 }
 
@@ -88,12 +89,16 @@ func init() {
 	createlistsCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
 	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd)
 	rootCmd.AddCommand(tasklistsCmd)
-	// Here you will define your flags and configuration settings.
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// tasklistsCmd.PersistentFlags().String("foo", "", "A help for foo")
+func getTaskLists(srv *tasks.Service) ([]*tasks.TaskList, error) {
+	r, err := srv.Tasklists.List().Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve task lists. %v", err)
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
+	if len(r.Items) == 0 {
+		return nil, errors.New("No Tasklist found")
+	}
+	return r.Items, nil
 }
