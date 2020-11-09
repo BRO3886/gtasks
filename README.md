@@ -9,8 +9,35 @@
 
 > A CLI Tool for Google Tasks
 
-## Instructions to Run:
+## Currently available commands
 
+- [x] Login
+- [x] View Task-List
+- [x] Create Task-List
+- [ ] Update Task-List
+- [ ] Delete Task-List
+- [x] View Tasks
+- [x] Create Tasks
+- [ ] Edit Task
+- [ ] Mark as completed
+- [ ] Delete Task
+
+
+## Instructions to Run:
+  - Pre-requisites
+    - Go
+  - Directions to install
+  ```bash
+  git clone https://github.com/BRO3886/google-tasks-cli
+  ```
+  - Directions to execute
+  ```bash
+  go mod get
+
+  go run .
+  ```
+  Or, you can check out the pre-compiled binaries under **Releases**
+  - Usage
 ```
 Usage:
   gtasks [command]
@@ -31,9 +58,3 @@ Use "gtasks [command] --help" for more information about a command.
 <div align="center">
 Made with :coffee: & <a href="https://cobra.dev">Cobra</a>
 </div>
-
-
-
-
-
-
