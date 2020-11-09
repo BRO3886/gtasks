@@ -65,12 +65,13 @@ var viewTasksCmd = &cobra.Command{
 		}
 		for index, i := range tasks {
 			color.Green("[%d] %s\n", index+1, i.Title)
-			fmt.Printf("%s\n", i.Notes)
+			fmt.Printf("%s: %s\n", color.YellowString("Description"), i.Notes)
+			fmt.Printf("%s: %s\n", color.YellowString("Status"), i.Status)
 			due, err := time.Parse(time.RFC3339, i.Due)
 			if err != nil {
 				fmt.Printf("No Due Date\n")
 			} else {
-				color.Yellow("Due %s\n", due.Format("Mon Jan 2 2006 3:04PM"))
+				fmt.Printf("%s: %s\n", color.YellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
 			}
 		}
 
@@ -127,6 +128,10 @@ var createTaskCmd = &cobra.Command{
 				return
 			}
 			y, _ := strconv.Atoi(arr[2])
+			if y < time.Now().Year() {
+				color.Yellow("Please enter a valid year")
+				return
+			}
 			d, _ := strconv.Atoi(arr[0])
 			m, _ := strconv.Atoi(arr[1])
 
