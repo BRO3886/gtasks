@@ -15,8 +15,8 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gtasks",
-	Short: "A CLI client for Google Tasks",
-	Long: `A CLI Tool written as a client for Google Tasks API:
+	Short: "A CLI Tool for Google Tasks",
+	Long: `A CLI Tool for managing your Google Tasks:
 
 Made with ❤	by https://github.com/BRO3886
 
@@ -27,9 +27,6 @@ Made with ❤	by https://github.com/BRO3886
 ░░░██║░░░██╔══██║░╚═══██╗██╔═██╗░░╚═══██╗  ██║░░██╗██║░░░░░██║
 ░░░██║░░░██║░░██║██████╔╝██║░╚██╗██████╔╝  ╚█████╔╝███████╗██║
 ░░░╚═╝░░░╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝╚═════╝░  ░╚════╝░╚══════╝╚═╝`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

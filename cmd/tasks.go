@@ -20,16 +20,11 @@ import (
 // tasksCmd represents the tasks command
 var tasksCmd = &cobra.Command{
 	Use:   "tasks",
-	Short: "View, create, list and delete tasks in a tasklist",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("tasks called")
-	},
+	Short: "View, create, and delete tasks in a tasklist",
+	Long: `
+	View, create, list and delete tasks in a tasklist
+	for the currently signed in account.
+	`,
 }
 
 var viewTasksCmd = &cobra.Command{
