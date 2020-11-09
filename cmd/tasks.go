@@ -70,6 +70,7 @@ var viewTasksCmd = &cobra.Command{
 		}
 		for index, i := range tasks {
 			color.Green("[%d] %s\n", index+1, i.Title)
+			fmt.Printf("%s\n", i.Notes)
 			due, err := time.Parse(time.RFC3339, i.Due)
 			if err != nil {
 				fmt.Printf("No Due Date\n")
@@ -158,7 +159,7 @@ func getTasks(srv *tasks.Service, id string) ([]*tasks.Task, error) {
 		log.Fatalf("Unable to retrieve tasks. %v", err)
 	}
 	if len(r.Items) == 0 {
-		return nil, errors.New("No Tasklist found")
+		return nil, errors.New("No Tasks found")
 	}
 	return r.Items, nil
 }

@@ -36,9 +36,9 @@ var tasklistsCmd = &cobra.Command{
 }
 
 var showlistsCmd = &cobra.Command{
-	Use:   "show",
-	Short: "show tasklists",
-	Long:  `Show task lists for the account currently signed in`,
+	Use:   "view",
+	Short: "view tasklists",
+	Long:  `view task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config := utils.ReadCredentials()
 		client := getClient(config)
@@ -52,8 +52,8 @@ var showlistsCmd = &cobra.Command{
 			log.Fatalf("Error %v", err)
 		}
 
-		for _, i := range list {
-			fmt.Printf("%s (%s)\n", i.Title, i.Id)
+		for index, i := range list {
+			fmt.Printf("[%d] %s\n", index+1, i.Title)
 		}
 
 	},
@@ -62,7 +62,7 @@ var showlistsCmd = &cobra.Command{
 var createlistsCmd = &cobra.Command{
 	Use:   "create",
 	Short: "create tasklist",
-	Long:  `TODO:add`,
+	Long:  `Create tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config := utils.ReadCredentials()
 		client := getClient(config)
