@@ -20,6 +20,7 @@ import (
 	"os"
 
 	"github.com/BRO3886/google-tasks-cli/cmd"
+	"github.com/BRO3886/google-tasks-cli/utils"
 )
 
 func generateConfig() {
@@ -39,11 +40,13 @@ func generateConfig() {
 		}
 	}`
 	mode := int(0666)
-	ioutil.WriteFile("config.json", []byte(credString), os.FileMode(mode))
+	folderPath := utils.GetInstallLocation()
+	ioutil.WriteFile(folderPath+"/config.json", []byte(credString), os.FileMode(mode))
 }
 
 func main() {
-	_, err := ioutil.ReadFile("config.json")
+	folderPath := utils.GetInstallLocation()
+	_, err := ioutil.ReadFile(folderPath + "/config.json")
 	if err != nil {
 		generateConfig()
 	}

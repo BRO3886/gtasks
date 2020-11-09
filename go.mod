@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.71.0 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.3.3 // indirect

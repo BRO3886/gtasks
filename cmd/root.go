@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 	Short: "A CLI Tool for Google Tasks",
 	Long: `A CLI Tool for managing your Google Tasks:
 
-Made with ❤	by https://github.com/BRO3886
+Made with ♥	by https://github.com/BRO3886
 
 
 ████████╗░█████╗░░██████╗██╗░░██╗░██████╗  ░█████╗░██╗░░░░░██╗
