@@ -12,7 +12,7 @@ import (
 
 // tasklistsCmd represents the tasklists command
 var tasklistsCmd = &cobra.Command{
-	Use:   "tasklists",
+	Use:   "lists",
 	Short: "View and create tasklists for currently signed-in account",
 	Long: `
 	View and create tasklists for currently signed-in account

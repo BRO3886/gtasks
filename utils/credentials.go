@@ -9,9 +9,9 @@ import (
 	"google.golang.org/api/tasks/v1"
 )
 
-//ReadCredentials reads the credentials.json file
+//ReadCredentials reads the config.json file
 func ReadCredentials() *oauth2.Config {
-	b, err := ioutil.ReadFile("credentials.json")
+	b, err := ioutil.ReadFile("config.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
