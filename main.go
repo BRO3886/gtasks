@@ -19,8 +19,8 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/BRO3886/google-tasks-cli/cmd"
-	"github.com/BRO3886/google-tasks-cli/utils"
+	"github.com/BRO3886/gtasks/cmd"
+	"github.com/BRO3886/gtasks/utils"
 )
 
 func generateConfig() {

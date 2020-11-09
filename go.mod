@@ -1,4 +1,4 @@
-module github.com/BRO3886/google-tasks-cli
+module github.com/BRO3886/gtasks
 
 go 1.15
 
@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.7.1
-	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102
+	golang.org/x/net v0.0.0-20201031054903-ff519b6c9102 // indirect
 	golang.org/x/oauth2 v0.0.0-20200902213428-5d25da1a8d43
 	golang.org/x/sys v0.0.0-20201107080550-4d91cf3a1aaf // indirect
 	golang.org/x/text v0.3.4 // indirect

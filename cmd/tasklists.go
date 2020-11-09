@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/BRO3886/google-tasks-cli/utils"
+	"github.com/BRO3886/gtasks/utils"
 	"github.com/spf13/cobra"
 	"google.golang.org/api/tasks/v1"
 )

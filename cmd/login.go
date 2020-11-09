@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/BRO3886/google-tasks-cli/utils"
+	"github.com/BRO3886/gtasks/utils"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
