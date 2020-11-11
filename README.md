@@ -14,7 +14,7 @@
 - [x] View Tasks
 - [x] Create Tasks
 - [ ] Edit Task
-- [ ] Mark as completed
+- [x] Mark as completed
 - [ ] Delete Task
 
 
