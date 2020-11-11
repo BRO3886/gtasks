@@ -50,19 +50,22 @@ var viewTasksCmd = &cobra.Command{
 		}
 
 		fmt.Println("Choose a Tasklist:")
-		for index, i := range list {
-			fmt.Printf("[%d] %s\n", index+1, i.Title)
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
 		}
-		fmt.Printf("Choose an option: ")
-		var option int
-		if _, err := fmt.Scan(&option); err != nil {
-			log.Fatalf("Unable to read option: %v", err)
-		}
-		fmt.Println("Tasks in '" + list[option-1].Title + "':\n")
 
-		tasks, err := getTasks(srv, list[option-1].Id)
+		prompt := promptui.Select{
+			Label: "Select Tasklist",
+			Items: l,
+		}
+		option, result, err := prompt.Run()
+		fmt.Println("Creating task in " + result)
+
+		tasks, err := getTasks(srv, list[option].Id)
 		if err != nil {
-			log.Fatalf("Error %v", err)
+			color.Red(err.Error())
+			return
 		}
 		for index, i := range tasks {
 			color.Green("[%d] %s\n", index+1, i.Title)
@@ -145,7 +148,7 @@ var createTaskCmd = &cobra.Command{
 		}
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		task, err = createTask(srv, task, list[option-1].Id)
+		task, err = createTask(srv, task, list[option].Id)
 		if err != nil {
 			log.Fatalf("Unable to create task: %v", err)
 		}
