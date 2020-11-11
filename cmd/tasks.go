@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -44,7 +43,7 @@ var viewTasksCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := getTaskLists(srv)
+		list, err := utils.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -62,7 +61,7 @@ var viewTasksCmd = &cobra.Command{
 		option, result, err := prompt.Run()
 		fmt.Println("Creating task in " + result)
 
-		tasks, err := getTasks(srv, list[option].Id)
+		tasks, err := utils.GetTasks(srv, list[option].Id)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -98,7 +97,7 @@ var createTaskCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := getTaskLists(srv)
+		list, err := utils.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -148,9 +147,10 @@ var createTaskCmd = &cobra.Command{
 		}
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		task, err = createTask(srv, task, list[option].Id)
+		task, err = utils.CreateTask(srv, task, list[option].Id)
 		if err != nil {
-			log.Fatalf("Unable to create task: %v", err)
+			color.Red("Unable to create task: %v", err)
+			return
 		}
 		color.Green("Task created")
 	},
@@ -159,33 +159,6 @@ var createTaskCmd = &cobra.Command{
 func init() {
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
-}
-
-func getTasks(srv *tasks.Service, id string) ([]*tasks.Task, error) {
-	r, err := srv.Tasks.List(id).Do()
-	if err != nil {
-		log.Fatalf("Unable to retrieve tasks. %v", err)
-	}
-	if len(r.Items) == 0 {
-		return nil, errors.New("No Tasks found")
-	}
-	return r.Items, nil
-}
-
-func getTaskInfo(srv *tasks.Service, id string, taskID string) (*tasks.Task, error) {
-	r, err := srv.Tasks.Get(id, taskID).Do()
-	if err != nil {
-		log.Fatalf("Unable to retrieve tasks. %v", err)
-	}
-	return r, nil
-}
-
-func createTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks.Task, error) {
-	r, err := srv.Tasks.Insert(tasklistID, task).Do()
-	if err != nil {
-		return nil, err
-	}
-	return r, nil
 }
 
 func getInput(reader *bufio.Reader) string {

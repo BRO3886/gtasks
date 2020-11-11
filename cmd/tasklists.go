@@ -47,7 +47,7 @@ var showlistsCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := getTaskLists(srv)
+		list, err := utils.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -89,16 +89,4 @@ func init() {
 	createlistsCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
 	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd)
 	rootCmd.AddCommand(tasklistsCmd)
-}
-
-func getTaskLists(srv *tasks.Service) ([]*tasks.TaskList, error) {
-	r, err := srv.Tasklists.List().Do()
-	if err != nil {
-		log.Fatalf("Unable to retrieve task lists. %v", err)
-	}
-
-	if len(r.Items) == 0 {
-		return nil, errors.New("No Tasklist found")
-	}
-	return r.Items, nil
 }
