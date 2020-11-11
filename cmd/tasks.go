@@ -59,7 +59,7 @@ var viewTasksCmd = &cobra.Command{
 			Items: l,
 		}
 		option, result, err := prompt.Run()
-		fmt.Println("Creating task in " + result)
+		fmt.Printf("Tasks in %s:\n", result)
 
 		tasks, err := utils.GetTasks(srv, list[option].Id)
 		if err != nil {
@@ -156,8 +156,19 @@ var createTaskCmd = &cobra.Command{
 	},
 }
 
+var markCompletedCmd = &cobra.Command{
+	Use:   "done",
+	Short: "Mark tasks as done",
+	Long: `
+	Use this command to mark a task as completed
+	in a selected tasklist for the currently signed in account
+	`,
+	Run: func(cmd *cobra.Command, args []string) {
+	},
+}
+
 func init() {
-	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd)
+	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd)
 	rootCmd.AddCommand(tasksCmd)
 }
 
