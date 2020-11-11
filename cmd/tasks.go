@@ -13,6 +13,7 @@ import (
 
 	"github.com/BRO3886/gtasks/utils"
 	"github.com/fatih/color"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"google.golang.org/api/tasks/v1"
 )
@@ -79,10 +80,10 @@ var viewTasksCmd = &cobra.Command{
 }
 
 var createTaskCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create task in a tasklist",
+	Use:   "add",
+	Short: "Add task in a tasklist",
 	Long: `
-	Use this command to create tasks in a selected 
+	Use this command to add tasks in a selected 
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -100,22 +101,27 @@ var createTaskCmd = &cobra.Command{
 		}
 
 		fmt.Println("Choose a Tasklist:")
-		for index, i := range list {
-			fmt.Printf("[%d] %s\n", index+1, i.Title)
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
+			// fmt.Printf("[%d] %s\n", index+1, i.Title)
 		}
-		fmt.Printf("Choose an option: ")
+		// fmt.Printf("Choose an option: ")
+		prompt := promptui.Select{
+			Label: "Select Day",
+			Items: l,
+		}
+		option, result, err := prompt.Run()
+		fmt.Println("Creating task in " + result)
 
-		var option int
-		if _, err := fmt.Scan(&option); err != nil {
-			log.Fatalf("Unable to read option: %v", err)
-		}
+		reader := bufio.NewReader(os.Stdin)
 
 		fmt.Printf("Title: ")
-		title := getInput()
+		title := getInput(reader)
 		fmt.Printf("Note: ")
-		notes := getInput()
+		notes := getInput(reader)
 		fmt.Printf("Due Date (dd/mm/yyyy): ")
-		dateInput := getInput()
+		dateInput := getInput(reader)
 
 		var dateString string
 
@@ -124,7 +130,7 @@ var createTaskCmd = &cobra.Command{
 		} else {
 			arr := strings.Split(dateInput, "/")
 			if len(arr) < 3 {
-				color.Red("Time format incorrect")
+				color.Red("Date format incorrect")
 				return
 			}
 			y, _ := strconv.Atoi(arr[2])
@@ -164,6 +170,14 @@ func getTasks(srv *tasks.Service, id string) ([]*tasks.Task, error) {
 	return r.Items, nil
 }
 
+func getTaskInfo(srv *tasks.Service, id string, taskID string) (*tasks.Task, error) {
+	r, err := srv.Tasks.Get(id, taskID).Do()
+	if err != nil {
+		log.Fatalf("Unable to retrieve tasks. %v", err)
+	}
+	return r, nil
+}
+
 func createTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks.Task, error) {
 	r, err := srv.Tasks.Insert(tasklistID, task).Do()
 	if err != nil {
@@ -172,8 +186,7 @@ func createTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks
 	return r, nil
 }
 
-func getInput() string {
-	reader := bufio.NewReader(os.Stdin)
+func getInput(reader *bufio.Reader) string {
 	title, _ = reader.ReadString('\n')
 	if runtime.GOOS == "windows" {
 		title = strings.Replace(title, "\r\n", "", -1)
