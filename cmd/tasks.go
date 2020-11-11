@@ -104,11 +104,10 @@ var createTaskCmd = &cobra.Command{
 		var l []string
 		for _, i := range list {
 			l = append(l, i.Title)
-			// fmt.Printf("[%d] %s\n", index+1, i.Title)
 		}
-		// fmt.Printf("Choose an option: ")
+
 		prompt := promptui.Select{
-			Label: "Select Day",
+			Label: "Select Tasklist",
 			Items: l,
 		}
 		option, result, err := prompt.Run()
