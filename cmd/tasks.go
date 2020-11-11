@@ -21,10 +21,10 @@ import (
 var tasksCmd = &cobra.Command{
 	Use:   "tasks",
 	Short: "View, create, and delete tasks in a tasklist",
-	Long: `
-	View, create, list and delete tasks in a tasklist
-	for the currently signed in account.
-	`,
+	// Long: `
+	// View, create, list and delete tasks in a tasklist
+	// for the currently signed in account.
+	// `,
 }
 
 var viewTasksCmd = &cobra.Command{
