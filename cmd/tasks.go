@@ -68,13 +68,13 @@ var viewTasksCmd = &cobra.Command{
 		}
 		for index, i := range tasks {
 			color.Green("[%d] %s\n", index+1, i.Title)
-			fmt.Printf("%s: %s\n", color.YellowString("Description"), i.Notes)
-			fmt.Printf("%s: %s\n", color.YellowString("Status"), i.Status)
+			fmt.Printf("    %s: %s\n", color.YellowString("Description"), i.Notes)
+			fmt.Printf("    %s: %s\n", color.YellowString("Status"), i.Status)
 			due, err := time.Parse(time.RFC3339, i.Due)
 			if err != nil {
-				fmt.Printf("No Due Date\n")
+				fmt.Printf("    No Due Date\n")
 			} else {
-				fmt.Printf("%s: %s\n", color.YellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
+				fmt.Printf("    %s: %s\n", color.YellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
 			}
 		}
 
@@ -164,6 +164,58 @@ var markCompletedCmd = &cobra.Command{
 	in a selected tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		config := utils.ReadCredentials()
+		client := getClient(config)
+
+		srv, err := tasks.New(client)
+		if err != nil {
+			log.Fatalf("Unable to retrieve tasks Client %v", err)
+		}
+
+		list, err := utils.GetTaskLists(srv)
+		if err != nil {
+			log.Fatalf("Error %v", err)
+		}
+
+		fmt.Println("Choose a Tasklist:")
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select Tasklist",
+			Items: l,
+		}
+		option, result, err := prompt.Run()
+		fmt.Printf("Tasks in %s:\n", result)
+		tID := list[option].Id
+
+		tasks, err := utils.GetTasks(srv, tID)
+		if err != nil {
+			color.Red(err.Error())
+			return
+		}
+
+		tString := []string{}
+		for _, i := range tasks {
+			tString = append(tString, i.Title)
+		}
+
+		prompt = promptui.Select{
+			Label: "Select Task",
+			Items: tString,
+		}
+		option, result, err = prompt.Run()
+
+		t := tasks[option]
+		t.Status = "completed"
+		_, err = utils.UpdateTask(srv, t, tID)
+		if err != nil {
+			color.Red("Unable to mark task as completed: %v", err)
+			return
+		}
+		color.Green("Marked as complete: " + t.Title)
 	},
 }
 

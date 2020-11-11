@@ -11,3 +11,5 @@ all:
 	GOOS=freebsd GOARCH=386 go build -o ./bin/freebsd/gtasks
 run:
 	go run .
+global:
+	go install .

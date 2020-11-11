@@ -29,7 +29,15 @@ func GetTasks(srv *tasks.Service, id string) ([]*tasks.Task, error) {
 func GetTaskInfo(srv *tasks.Service, id string, taskID string) (*tasks.Task, error) {
 	r, err := srv.Tasks.Get(id, taskID).Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve tasks. %v", err)
+		return nil, err
+	}
+	return r, nil
+}
+
+func UpdateTask(srv *tasks.Service, t *tasks.Task, tListId string) (*tasks.Task, error) {
+	r, err := srv.Tasks.Patch(tListId, t.Id, t).Do()
+	if err != nil {
+		return nil, err
 	}
 	return r, nil
 }
