@@ -18,3 +18,19 @@ func GetTaskLists(srv *tasks.Service) ([]*tasks.TaskList, error) {
 	}
 	return r.Items, nil
 }
+
+func UpdateTaskList(srv *tasks.Service, tl *tasks.TaskList) (*tasks.TaskList, error) {
+	r, err := srv.Tasklists.Patch(tl.Id, tl).Do()
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func DeleteTaskList(srv *tasks.Service, tID string) error {
+	err := srv.Tasklists.Delete(tID).Do()
+	if err != nil {
+		return err
+	}
+	return nil
+}

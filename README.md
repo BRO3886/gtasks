@@ -10,7 +10,7 @@
 - [x] View Task-List
 - [x] Create Task-List
 - [ ] Update Task-List
-- [ ] Delete Task-List
+- [x] Delete Task-List
 - [x] View Tasks
 - [x] Create Tasks
 - [ ] Edit Task

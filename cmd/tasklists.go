@@ -6,6 +6,8 @@ import (
 	"log"
 
 	"github.com/BRO3886/gtasks/utils"
+	"github.com/fatih/color"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"google.golang.org/api/tasks/v1"
 )
@@ -83,10 +85,54 @@ var createlistsCmd = &cobra.Command{
 	},
 }
 
+var removeListCmd = &cobra.Command{
+	Use:   "rm",
+	Short: "remove tasklist",
+	Long:  `Remove a tasklist for the currently signed in account`,
+	Run: func(cmd *cobra.Command, args []string) {
+		config := utils.ReadCredentials()
+		client := getClient(config)
+
+		srv, err := tasks.New(client)
+		if err != nil {
+			log.Fatalf("Unable to retrieve tasks Client %v", err)
+		}
+
+		list, err := utils.GetTaskLists(srv)
+		if err != nil {
+			log.Fatalf("Error %v", err)
+		}
+
+		fmt.Println("Choose a Tasklist:")
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select Tasklist",
+			Items: l,
+		}
+		option, result, err := prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
+		fmt.Printf("%s: %s\n", color.YellowString("Deleting list"), result)
+
+		err = utils.DeleteTaskList(srv, list[option].Id)
+		if err != nil {
+			color.Red("Error deleting tasklist: " + err.Error())
+			return
+		}
+		color.Green("Tasklist deleted")
+	},
+}
+
 var title string
 
 func init() {
 	createlistsCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
-	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd)
+	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd, removeListCmd)
 	rootCmd.AddCommand(tasklistsCmd)
 }

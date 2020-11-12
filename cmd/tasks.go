@@ -59,6 +59,10 @@ var viewTasksCmd = &cobra.Command{
 			Items: l,
 		}
 		option, result, err := prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
 		fmt.Printf("Tasks in %s:\n", result)
 
 		tasks, err := utils.GetTasks(srv, list[option].Id, showCompletedFlag)
@@ -113,6 +117,10 @@ var createTaskCmd = &cobra.Command{
 			Items: l,
 		}
 		option, result, err := prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
 		fmt.Println("Creating task in " + result)
 
 		reader := bufio.NewReader(os.Stdin)
@@ -188,6 +196,10 @@ var markCompletedCmd = &cobra.Command{
 			Items: l,
 		}
 		option, result, err := prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
 		fmt.Printf("Tasks in %s:\n", result)
 		tID := list[option].Id
 
@@ -207,7 +219,10 @@ var markCompletedCmd = &cobra.Command{
 			Items: tString,
 		}
 		option, result, err = prompt.Run()
-
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
 		t := tasks[option]
 		t.Status = "completed"
 		_, err = utils.UpdateTask(srv, t, tID)
