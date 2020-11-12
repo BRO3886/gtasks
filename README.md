@@ -2,7 +2,7 @@
 
 `gtasks`: A CLI Tool for Google Tasks
 
-![gtasks](./.github/gtasks.png)
+[![asciicast](https://asciinema.org/a/GuTYq631xmZfzI1Q8qz4V9vTH.svg)](https://asciinema.org/a/GuTYq631xmZfzI1Q8qz4V9vTH)
 
 ## Currently available commands
 
