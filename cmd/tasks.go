@@ -61,7 +61,7 @@ var viewTasksCmd = &cobra.Command{
 		option, result, err := prompt.Run()
 		fmt.Printf("Tasks in %s:\n", result)
 
-		tasks, err := utils.GetTasks(srv, list[option].Id)
+		tasks, err := utils.GetTasks(srv, list[option].Id, showCompletedFlag)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -191,7 +191,7 @@ var markCompletedCmd = &cobra.Command{
 		fmt.Printf("Tasks in %s:\n", result)
 		tID := list[option].Id
 
-		tasks, err := utils.GetTasks(srv, tID)
+		tasks, err := utils.GetTasks(srv, tID, false)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -219,7 +219,10 @@ var markCompletedCmd = &cobra.Command{
 	},
 }
 
+var showCompletedFlag bool
+
 func init() {
+	viewTasksCmd.Flags().BoolVarP(&showCompletedFlag, "completed", "c", false, "use this flag to include completed tasks")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd)
 	rootCmd.AddCommand(tasksCmd)
 }
