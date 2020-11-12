@@ -16,6 +16,6 @@ global:
 push:
 	git add .
 	echo "add commit message:"
-	read msg
-	git commit -m "$msg"
+	read -p 'commmit message: ' msg
+	git commit -m $msg
 	git push origin master
