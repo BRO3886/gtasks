@@ -17,3 +17,5 @@ push:
 	git add .
 	git commit -m "$m"
 	git push origin master
+release:
+	gh release create $v './bin/windows/gtasks.exe' './bin/linux/gtasks'
