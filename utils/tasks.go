@@ -45,3 +45,9 @@ func UpdateTask(srv *tasks.Service, t *tasks.Task, tListID string) (*tasks.Task,
 	}
 	return r, nil
 }
+
+//DeleteTask used to delete a task
+func DeleteTask(srv *tasks.Service, id string, tid string) error {
+	err := srv.Tasks.Delete(tid, id).Do()
+	return err
+}

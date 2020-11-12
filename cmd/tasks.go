@@ -234,11 +234,81 @@ var markCompletedCmd = &cobra.Command{
 	},
 }
 
+var deleteTaskCmd = &cobra.Command{
+	Use:   "rm",
+	Short: "Delete a task in a tasklist",
+	Long: `
+	Use this command to delete a task in a tasklist
+	for the currently signed in account
+	`,
+	Run: func(cmd *cobra.Command, args []string) {
+		config := utils.ReadCredentials()
+		client := getClient(config)
+
+		srv, err := tasks.New(client)
+		if err != nil {
+			log.Fatalf("Unable to retrieve tasks Client %v", err)
+		}
+
+		list, err := utils.GetTaskLists(srv)
+		if err != nil {
+			log.Fatalf("Error %v", err)
+		}
+
+		fmt.Println("Choose a Tasklist:")
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select Tasklist",
+			Items: l,
+		}
+		option, result, err := prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
+		fmt.Printf("Tasks in %s:\n", result)
+		tID := list[option].Id
+
+		tasks, err := utils.GetTasks(srv, tID, false)
+		if err != nil {
+			color.Red(err.Error())
+			return
+		}
+
+		tString := []string{}
+		for _, i := range tasks {
+			tString = append(tString, i.Title)
+		}
+
+		prompt = promptui.Select{
+			Label: "Select Task",
+			Items: tString,
+		}
+		option, result, err = prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
+		t := tasks[option]
+		t.Status = "completed"
+		err = utils.DeleteTask(srv, t.Id, tID)
+		if err != nil {
+			color.Red("Unable to delete task: %v", err)
+			return
+		}
+		fmt.Printf("%s: %s\n", color.GreenString("Deleted"), t.Title)
+	},
+}
+
 var showCompletedFlag bool
 
 func init() {
 	viewTasksCmd.Flags().BoolVarP(&showCompletedFlag, "completed", "c", false, "use this flag to include completed tasks")
-	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd)
+	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
 }
 

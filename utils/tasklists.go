@@ -29,8 +29,5 @@ func UpdateTaskList(srv *tasks.Service, tl *tasks.TaskList) (*tasks.TaskList, er
 
 func DeleteTaskList(srv *tasks.Service, tID string) error {
 	err := srv.Tasklists.Delete(tID).Do()
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
