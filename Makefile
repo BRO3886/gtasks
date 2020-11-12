@@ -15,7 +15,5 @@ global:
 	go install .
 push:
 	git add .
-	echo "add commit message:"
-	read -p 'commmit message: ' msg
-	git commit -m $msg
+	git commit -m "$m"
 	git push origin master
