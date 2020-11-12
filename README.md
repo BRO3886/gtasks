@@ -27,7 +27,7 @@
   ```
   - Directions to execute
   ```bash
-  go run .
+  go run . gtasks -h
   ```
   Or, you can check out the pre-compiled binaries under **Releases**
   - Usage

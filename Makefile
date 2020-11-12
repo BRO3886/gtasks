@@ -13,3 +13,9 @@ run:
 	go run .
 global:
 	go install .
+push:
+	git add .
+	echo "add commit message:"
+	read msg
+	git commit -m "$msg"
+	git push origin master
