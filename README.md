@@ -2,14 +2,14 @@
 
 `gtasks`: A CLI Tool for Google Tasks
 
-[![asciicast](https://asciinema.org/a/GuTYq631xmZfzI1Q8qz4V9vTH.svg)](https://asciinema.org/a/GuTYq631xmZfzI1Q8qz4V9vTH)
+[![asciicast](https://asciinema.org/a/372759.svg)](https://asciinema.org/a/372759)
 
 ## Currently available commands
 
 - [x] Login
 - [x] View Task-List
 - [x] Create Task-List
-- [ ] Update Task-List
+- [ ] Update Task-List title
 - [x] Delete Task-List
 - [x] View Tasks
 - [x] Create Tasks

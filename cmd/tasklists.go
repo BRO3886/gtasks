@@ -20,11 +20,14 @@ var tasklistsCmd = &cobra.Command{
 	View and create tasklists for currently signed-in account
 	
 	View tasklists:
-	gtasks tasklists show
+	gtasks tasklists view
 
 	Create tasklist:
 	gtasks tasklists create -t <TITLE>
 	gtasks tasklists create --title <TITLE>
+
+	Remove tasklist
+	gtasks tasklists rm
 
 	`,
 	Args: func(cmd *cobra.Command, args []string) error {
