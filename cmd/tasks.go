@@ -78,7 +78,7 @@ var viewTasksCmd = &cobra.Command{
 			if err != nil {
 				fmt.Printf("    No Due Date\n\n")
 			} else {
-				fmt.Printf("    %s: %s\n\n", color.YellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
+				fmt.Printf("    %s: %s\n\n", color.HiYellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
 			}
 		}
 
