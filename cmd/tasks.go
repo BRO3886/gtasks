@@ -73,7 +73,7 @@ var viewTasksCmd = &cobra.Command{
 		for index, i := range tasks {
 			color.HiGreen("[%d] %s\n", index+1, i.Title)
 			fmt.Printf("    %s: %s\n", color.HiYellowString("Description"), i.Notes)
-			fmt.Printf("    %s: %s\n", color.YellowString("Status"), i.Status)
+			fmt.Printf("    %s: %s\n", color.HiYellowString("Status"), i.Status)
 			due, err := time.Parse(time.RFC3339, i.Due)
 			if err != nil {
 				fmt.Printf("    No Due Date\n\n")
