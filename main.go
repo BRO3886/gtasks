@@ -17,38 +17,16 @@ package main
 
 import (
 	"io/ioutil"
-	"os"
 
 	"github.com/BRO3886/gtasks/cmd"
 	"github.com/BRO3886/gtasks/utils"
 )
 
-func generateConfig() {
-	credString := `
-	{
-		"installed": {
-			"client_id": "415973160530-1onpd10rt7vl0dc79sh0hf8qb7ilc0bo.apps.googleusercontent.com",
-			"project_id": "tasks-cli-tool-1604690538991",
-			"auth_uri": "https://accounts.google.com/o/oauth2/auth",
-			"token_uri": "https://oauth2.googleapis.com/token",
-			"auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-			"client_secret": "s-QOvdsBvXh7vgIGJSgojFa7",
-			"redirect_uris": [
-				"urn:ietf:wg:oauth:2.0:oob",
-				"http://localhost"
-			]
-		}
-	}`
-	mode := int(0666)
-	folderPath := utils.GetInstallLocation()
-	ioutil.WriteFile(folderPath+"/config.json", []byte(credString), os.FileMode(mode))
-}
-
 func main() {
 	folderPath := utils.GetInstallLocation()
 	_, err := ioutil.ReadFile(folderPath + "/config.json")
 	if err != nil {
-		generateConfig()
+		utils.GenerateConfig()
 	}
 	cmd.Execute()
 }
