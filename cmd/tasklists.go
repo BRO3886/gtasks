@@ -84,7 +84,8 @@ var createlistsCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("Unable to create task list. %v", err)
 		}
-		fmt.Println("Created: " + r.Title)
+		title = ""
+		fmt.Println(color.GreenString("Created: ") + r.Title)
 	},
 }
 
@@ -132,10 +133,58 @@ var removeListCmd = &cobra.Command{
 	},
 }
 
+var updateTitleCmd = &cobra.Command{
+	Use:   "update",
+	Short: "update tasklist title",
+	Long:  `Update tasklist title for the currently signed in account`,
+	Run: func(cmd *cobra.Command, args []string) {
+		config := utils.ReadCredentials()
+		client := getClient(config)
+		srv, err := tasks.New(client)
+		if err != nil {
+			log.Fatalf("Unable to retrieve tasks Client %v", err)
+		}
+		if title == "" {
+			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
+			return
+		}
+
+		list, err := utils.GetTaskLists(srv)
+		if err != nil {
+			log.Fatalf("Error %v", err)
+		}
+
+		fmt.Println("Choose a Tasklist:")
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select Tasklist",
+			Items: l,
+		}
+		option, _, err := prompt.Run()
+		if err != nil {
+			color.Red("Error: " + err.Error())
+			return
+		}
+		t := list[option]
+		t.Title = title
+		t, err = utils.UpdateTaskList(srv, t)
+		if err != nil {
+			color.Red("Error updating tasklist: " + err.Error())
+			return
+		}
+		color.Green("Tasklist title updated")
+	},
+}
+
 var title string
 
 func init() {
 	createlistsCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
-	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd, removeListCmd)
+	updateTitleCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
+	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd, removeListCmd, updateTitleCmd)
 	rootCmd.AddCommand(tasklistsCmd)
 }

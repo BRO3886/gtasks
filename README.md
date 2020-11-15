@@ -9,7 +9,7 @@
 - [x] Login
 - [x] View Task-List
 - [x] Create Task-List
-- [ ] Update Task-List title
+- [x] Update Task-List title
 - [x] Delete Task-List
 - [x] View Tasks
 - [x] Create Tasks
