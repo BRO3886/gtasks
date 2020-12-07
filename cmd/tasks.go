@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BRO3886/gtasks/utils"
+	"github.com/BRO3886/gtasks/internal"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -35,7 +35,7 @@ var viewTasksCmd = &cobra.Command{
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 
 		srv, err := tasks.New(client)
@@ -43,7 +43,7 @@ var viewTasksCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -65,7 +65,7 @@ var viewTasksCmd = &cobra.Command{
 		}
 		fmt.Printf("Tasks in %s:\n", result)
 
-		tasks, err := utils.GetTasks(srv, list[option].Id, showCompletedFlag)
+		tasks, err := internal.GetTasks(srv, list[option].Id, showCompletedFlag)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -93,7 +93,7 @@ var createTaskCmd = &cobra.Command{
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 
 		srv, err := tasks.New(client)
@@ -101,7 +101,7 @@ var createTaskCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -155,7 +155,7 @@ var createTaskCmd = &cobra.Command{
 		}
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		task, err = utils.CreateTask(srv, task, list[option].Id)
+		task, err = internal.CreateTask(srv, task, list[option].Id)
 		if err != nil {
 			color.Red("Unable to create task: %v", err)
 			return
@@ -172,7 +172,7 @@ var markCompletedCmd = &cobra.Command{
 	in a selected tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 
 		srv, err := tasks.New(client)
@@ -180,7 +180,7 @@ var markCompletedCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -203,7 +203,7 @@ var markCompletedCmd = &cobra.Command{
 		fmt.Printf("Tasks in %s:\n", result)
 		tID := list[option].Id
 
-		tasks, err := utils.GetTasks(srv, tID, false)
+		tasks, err := internal.GetTasks(srv, tID, false)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -225,7 +225,7 @@ var markCompletedCmd = &cobra.Command{
 		}
 		t := tasks[option]
 		t.Status = "completed"
-		_, err = utils.UpdateTask(srv, t, tID)
+		_, err = internal.UpdateTask(srv, t, tID)
 		if err != nil {
 			color.Red("Unable to mark task as completed: %v", err)
 			return
@@ -242,7 +242,7 @@ var deleteTaskCmd = &cobra.Command{
 	for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 
 		srv, err := tasks.New(client)
@@ -250,7 +250,7 @@ var deleteTaskCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -273,7 +273,7 @@ var deleteTaskCmd = &cobra.Command{
 		fmt.Printf("Tasks in %s:\n", result)
 		tID := list[option].Id
 
-		tasks, err := utils.GetTasks(srv, tID, false)
+		tasks, err := internal.GetTasks(srv, tID, false)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -295,7 +295,7 @@ var deleteTaskCmd = &cobra.Command{
 		}
 		t := tasks[option]
 		t.Status = "completed"
-		err = utils.DeleteTask(srv, t.Id, tID)
+		err = internal.DeleteTask(srv, t.Id, tID)
 		if err != nil {
 			color.Red("Unable to delete task: %v", err)
 			return

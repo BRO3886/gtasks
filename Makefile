@@ -4,6 +4,8 @@ windows:
 linux:
 	@echo "Building for linux"
 	go build -o ./bin/linux/gtasks
+	@ cd bin/linux
+	gtasks
 all:
 	@echo "Building for every OS and Platform"
 	GOOS=windows GOARCH=386 go build -o ./bin/windows/gtasks.exe

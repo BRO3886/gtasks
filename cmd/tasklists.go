@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/BRO3886/gtasks/utils"
+	"github.com/BRO3886/gtasks/internal"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -45,14 +45,14 @@ var showlistsCmd = &cobra.Command{
 	Short: "view tasklists",
 	Long:  `view task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 		srv, err := tasks.New(client)
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -69,7 +69,7 @@ var createlistsCmd = &cobra.Command{
 	Short: "create tasklist",
 	Long:  `Create tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 		srv, err := tasks.New(client)
 		if err != nil {
@@ -94,7 +94,7 @@ var removeListCmd = &cobra.Command{
 	Short: "remove tasklist",
 	Long:  `Remove a tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 
 		srv, err := tasks.New(client)
@@ -102,7 +102,7 @@ var removeListCmd = &cobra.Command{
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -124,7 +124,7 @@ var removeListCmd = &cobra.Command{
 		}
 		fmt.Printf("%s: %s\n", color.YellowString("Deleting list"), result)
 
-		err = utils.DeleteTaskList(srv, list[option].Id)
+		err = internal.DeleteTaskList(srv, list[option].Id)
 		if err != nil {
 			color.Red("Error deleting tasklist: " + err.Error())
 			return
@@ -138,7 +138,7 @@ var updateTitleCmd = &cobra.Command{
 	Short: "update tasklist title",
 	Long:  `Update tasklist title for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		client := getClient(config)
 		srv, err := tasks.New(client)
 		if err != nil {
@@ -149,7 +149,7 @@ var updateTitleCmd = &cobra.Command{
 			return
 		}
 
-		list, err := utils.GetTaskLists(srv)
+		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -171,7 +171,7 @@ var updateTitleCmd = &cobra.Command{
 		}
 		t := list[option]
 		t.Title = title
-		t, err = utils.UpdateTaskList(srv, t)
+		t, err = internal.UpdateTaskList(srv, t)
 		if err != nil {
 			color.Red("Error updating tasklist: " + err.Error())
 			return

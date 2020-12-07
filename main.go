@@ -19,14 +19,14 @@ import (
 	"io/ioutil"
 
 	"github.com/BRO3886/gtasks/cmd"
-	"github.com/BRO3886/gtasks/utils"
+	"github.com/BRO3886/gtasks/internal"
 )
 
 func main() {
-	folderPath := utils.GetInstallLocation()
+	folderPath := internal.GetInstallLocation()
 	_, err := ioutil.ReadFile(folderPath + "/config.json")
 	if err != nil {
-		utils.GenerateConfig()
+		internal.GenerateConfig()
 	}
 	cmd.Execute()
 }

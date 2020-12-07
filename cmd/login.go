@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/BRO3886/gtasks/utils"
+	"github.com/BRO3886/gtasks/internal"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 )
@@ -19,7 +19,7 @@ var loginCmd = &cobra.Command{
 	Short: "Logging into Google Tasks",
 	Long:  `This command uses the credentials.json file and makes a request to get your tokens`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := utils.ReadCredentials()
+		config := internal.ReadCredentials()
 		getClient(config)
 	},
 }
@@ -33,7 +33,7 @@ func getClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	folderPath := utils.GetInstallLocation()
+	folderPath := internal.GetInstallLocation()
 	// fmt.Println(folderPath)
 	tokFile := folderPath + "/token.json"
 	tok, err := tokenFromFile(tokFile)
