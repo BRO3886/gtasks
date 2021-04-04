@@ -20,6 +20,11 @@
 
 ## Instructions to install
 
+```bash
+go get github.com/BRO3886/gtasks
+```
+or you can download the binary: 
+
 1. Download the binary for your system (check [releases](https://github.com/BRO3886/google-tasks-cli/releases))
 2. Move to a particular folder, for eg Documents
 3. Append the absolute path (use ```pwd```) of the folder to ```PATH```
