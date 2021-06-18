@@ -17,17 +17,14 @@ var rootCmd = &cobra.Command{
 	Use:     "gtasks",
 	Short:   "A CLI Tool for Google Tasks",
 	Version: "0.9.0",
-	Long: `A CLI Tool for managing your Google Tasks:
+	Long: `
+	A CLI Tool for managing your Google Tasks:
+	
+	* Run gtasks help for checking out inline help
+	* Run gtasks tasks login to log-in with your Google account
 
-Made with ♥	by https://github.com/BRO3886
-
-
-████████╗░█████╗░░██████╗██╗░░██╗░██████╗  ░█████╗░██╗░░░░░██╗
-╚══██╔══╝██╔══██╗██╔════╝██║░██╔╝██╔════╝  ██╔══██╗██║░░░░░██║
-░░░██║░░░███████║╚█████╗░█████═╝░╚█████╗░  ██║░░╚═╝██║░░░░░██║
-░░░██║░░░██╔══██║░╚═══██╗██╔═██╗░░╚═══██╗  ██║░░██╗██║░░░░░██║
-░░░██║░░░██║░░██║██████╔╝██║░╚██╗██████╔╝  ╚█████╔╝███████╗██║
-░░░╚═╝░░░╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝╚═════╝░  ░╚════╝░╚══════╝╚═╝`,
+	Made with ❤ by https://github.com/BRO3886
+`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
