@@ -3,6 +3,4 @@ token.json
 google-tasks-cli
 gtasks
 gtasks.exe
-bin/freebsd/gtasks-bsd
-bin/freebsd/gtasks-mac
-bin/mac/gtasks-mac
+bin/*

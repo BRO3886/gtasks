@@ -314,7 +314,7 @@ var deleteTaskCmd = &cobra.Command{
 var showCompletedFlag bool
 
 func init() {
-	viewTasksCmd.Flags().BoolVarP(&showCompletedFlag, "completed", "c", false, "use this flag to include completed tasks")
+	viewTasksCmd.Flags().BoolVarP(&showCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
 }
