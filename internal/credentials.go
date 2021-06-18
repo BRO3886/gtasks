@@ -24,6 +24,9 @@ func ReadCredentials() *oauth2.Config {
 	return config
 }
 
+
+
+
 func GenerateConfig() {
 	credString := `
 	{

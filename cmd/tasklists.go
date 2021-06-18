@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -47,7 +49,8 @@ var showlistsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := internal.ReadCredentials()
 		client := getClient(config)
-		srv, err := tasks.New(client)
+
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -71,7 +74,8 @@ var createlistsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := internal.ReadCredentials()
 		client := getClient(config)
-		srv, err := tasks.New(client)
+
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -97,7 +101,7 @@ var removeListCmd = &cobra.Command{
 		config := internal.ReadCredentials()
 		client := getClient(config)
 
-		srv, err := tasks.New(client)
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -140,7 +144,8 @@ var updateTitleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := internal.ReadCredentials()
 		client := getClient(config)
-		srv, err := tasks.New(client)
+
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -171,7 +176,8 @@ var updateTitleCmd = &cobra.Command{
 		}
 		t := list[option]
 		t.Title = title
-		t, err = internal.UpdateTaskList(srv, t)
+
+		_, err = internal.UpdateTaskList(srv, t)
 		if err != nil {
 			color.Red("Error updating tasklist: " + err.Error())
 			return

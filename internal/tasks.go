@@ -23,7 +23,7 @@ func GetTasks(srv *tasks.Service, id string, showCompleted bool) ([]*tasks.Task,
 		log.Fatalf("Unable to retrieve tasks. %v", err)
 	}
 	if len(r.Items) == 0 {
-		return nil, errors.New("No Tasks found")
+		return nil, errors.New("no Tasks found")
 	}
 	return r.Items, nil
 }

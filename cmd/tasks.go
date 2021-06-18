@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -14,6 +15,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -38,7 +40,7 @@ var viewTasksCmd = &cobra.Command{
 		config := internal.ReadCredentials()
 		client := getClient(config)
 
-		srv, err := tasks.New(client)
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -96,7 +98,7 @@ var createTaskCmd = &cobra.Command{
 		config := internal.ReadCredentials()
 		client := getClient(config)
 
-		srv, err := tasks.New(client)
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -155,7 +157,7 @@ var createTaskCmd = &cobra.Command{
 		}
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		task, err = internal.CreateTask(srv, task, list[option].Id)
+		_, err = internal.CreateTask(srv, task, list[option].Id)
 		if err != nil {
 			color.Red("Unable to create task: %v", err)
 			return
@@ -175,7 +177,7 @@ var markCompletedCmd = &cobra.Command{
 		config := internal.ReadCredentials()
 		client := getClient(config)
 
-		srv, err := tasks.New(client)
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -218,13 +220,15 @@ var markCompletedCmd = &cobra.Command{
 			Label: "Select Task",
 			Items: tString,
 		}
-		option, result, err = prompt.Run()
+
+		option, _, err = prompt.Run()
 		if err != nil {
 			color.Red("Error: " + err.Error())
 			return
 		}
 		t := tasks[option]
 		t.Status = "completed"
+
 		_, err = internal.UpdateTask(srv, t, tID)
 		if err != nil {
 			color.Red("Unable to mark task as completed: %v", err)
@@ -245,7 +249,7 @@ var deleteTaskCmd = &cobra.Command{
 		config := internal.ReadCredentials()
 		client := getClient(config)
 
-		srv, err := tasks.New(client)
+		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 		if err != nil {
 			log.Fatalf("Unable to retrieve tasks Client %v", err)
 		}
@@ -288,13 +292,16 @@ var deleteTaskCmd = &cobra.Command{
 			Label: "Select Task",
 			Items: tString,
 		}
-		option, result, err = prompt.Run()
+
+		option, _, err = prompt.Run()
 		if err != nil {
 			color.Red("Error: " + err.Error())
 			return
 		}
+
 		t := tasks[option]
 		t.Status = "completed"
+
 		err = internal.DeleteTask(srv, t.Id, tID)
 		if err != nil {
 			color.Red("Unable to delete task: %v", err)

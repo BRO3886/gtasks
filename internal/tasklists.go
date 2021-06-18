@@ -14,7 +14,7 @@ func GetTaskLists(srv *tasks.Service) ([]*tasks.TaskList, error) {
 	}
 
 	if len(r.Items) == 0 {
-		return nil, errors.New("No Tasklist found")
+		return nil, errors.New("no Tasklist found")
 	}
 	return r.Items, nil
 }
