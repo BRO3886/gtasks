@@ -103,8 +103,8 @@ gtasks tasks view
 ```
 * Viewing completed tasks
 ```bash
-gtasks tasks view -c true
-gtasks tasks view --completed true
+gtasks tasks view -c
+gtasks tasks view --completed
 ```
 * Adding a task
 ```bash
