@@ -85,7 +85,7 @@ var viewTasksCmd = &cobra.Command{
 			row := []string{fmt.Sprintf("%d", ind+1), task.Title, task.Notes}
 
 			if task.Status == "needsAction" {
-				row = append(row, "")
+				row = append(row, "✖")
 			} else if task.Status == "completed" {
 				row = append(row, "✔")
 			}
