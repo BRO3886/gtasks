@@ -16,7 +16,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:     "gtasks",
 	Short:   "A CLI Tool for Google Tasks",
-	Version: "0.9.1",
+	Version: "0.9.2",
 	Long: `
 	A CLI Tool for managing your Google Tasks:
 	
