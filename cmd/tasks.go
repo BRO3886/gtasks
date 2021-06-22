@@ -14,6 +14,7 @@ import (
 	"github.com/BRO3886/gtasks/internal"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
@@ -72,17 +73,35 @@ var viewTasksCmd = &cobra.Command{
 			color.Red(err.Error())
 			return
 		}
-		for index, i := range tasks {
-			color.HiGreen("[%d] %s\n", index+1, i.Title)
-			fmt.Printf("    %s: %s\n", color.HiYellowString("Description"), i.Notes)
-			fmt.Printf("    %s: %s\n", color.HiYellowString("Status"), i.Status)
-			due, err := time.Parse(time.RFC3339, i.Due)
+
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Title", "Description", "Status", "Due"})
+		// table.SetRowLine(true)
+		// table.SetRowSeparator("-")
+
+		for _, task := range tasks {
+			row := []string{task.Title, task.Notes, task.Status}
+
+			due, err := time.Parse(time.RFC3339, task.Due)
 			if err != nil {
-				fmt.Printf("    No Due Date\n\n")
+				row = append(row, "No Due Date")
 			} else {
-				fmt.Printf("    %s: %s\n\n", color.HiYellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
+				row = append(row, due.Local().Format("02 January 2006"))
 			}
+
+			table.Append(row)
+
+			// color.HiGreen("[%d] %s\n", index+1, i.Title)
+			// fmt.Printf("    %s: %s\n", color.HiYellowString("Description"), i.Notes)
+			// fmt.Printf("    %s: %s\n", color.HiYellowString("Status"), i.Status)
+			// due, err := time.Parse(time.RFC3339, i.Due)
+			// if err != nil {
+			// fmt.Printf("    No Due Date\n\n")
+			// } else {
+			// fmt.Printf("    %s: %s\n\n", color.HiYellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
+			// }
 		}
+		table.Render()
 
 	},
 }
