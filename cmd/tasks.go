@@ -75,12 +75,20 @@ var viewTasksCmd = &cobra.Command{
 		}
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Title", "Description", "Status", "Due"})
+		table.SetHeader([]string{"No", "Title", "Description", "Status", "Due"})
+		table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+		table.SetCenterSeparator("|")
 		// table.SetRowLine(true)
 		// table.SetRowSeparator("-")
 
-		for _, task := range tasks {
-			row := []string{task.Title, task.Notes, task.Status}
+		for ind, task := range tasks {
+			row := []string{fmt.Sprintf("%d", ind+1), task.Title, task.Notes}
+
+			if task.Status == "needsAction" {
+				row = append(row, "")
+			} else if task.Status == "completed" {
+				row = append(row, "✔")
+			}
 
 			due, err := time.Parse(time.RFC3339, task.Due)
 			if err != nil {
@@ -91,15 +99,6 @@ var viewTasksCmd = &cobra.Command{
 
 			table.Append(row)
 
-			// color.HiGreen("[%d] %s\n", index+1, i.Title)
-			// fmt.Printf("    %s: %s\n", color.HiYellowString("Description"), i.Notes)
-			// fmt.Printf("    %s: %s\n", color.HiYellowString("Status"), i.Status)
-			// due, err := time.Parse(time.RFC3339, i.Due)
-			// if err != nil {
-			// fmt.Printf("    No Due Date\n\n")
-			// } else {
-			// fmt.Printf("    %s: %s\n\n", color.HiYellowString("Due"), due.Format("Mon Jan 2 2006 3:04PM"))
-			// }
 		}
 		table.Render()
 
