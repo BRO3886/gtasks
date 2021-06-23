@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BRO3886/gtasks/internal"
+	"github.com/BRO3886/gtasks/api"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
@@ -23,10 +23,17 @@ import (
 var tasksCmd = &cobra.Command{
 	Use:   "tasks",
 	Short: "View, create, and delete tasks in a tasklist",
-	// Long: `
-	// View, create, list and delete tasks in a tasklist
-	// for the currently signed in account.
-	// `,
+	Long: `
+	View, create, list and delete tasks in a tasklist
+	for the currently signed in account.
+	Usage:
+	[WITH LIST FLAG] 
+	gtasks tasks -l "<task-list name>" view|add|rm|done
+	
+	[WITHOUT LIST FLAG]
+	gtasks tasks view|add|rm|done
+	* You would be prompted to select a tasklist
+	`,
 }
 
 var viewTasksCmd = &cobra.Command{
@@ -42,7 +49,7 @@ var viewTasksCmd = &cobra.Command{
 
 		fmt.Printf("Tasks in %s:\n", tList.Title)
 
-		tasks, err := internal.GetTasks(srv, tList.Id, includeCompletedFlag)
+		tasks, err := api.GetTasks(srv, tList.Id, includeCompletedFlag)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -124,7 +131,7 @@ var createTaskCmd = &cobra.Command{
 
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		_, err := internal.CreateTask(srv, task, tList.Id)
+		_, err := api.CreateTask(srv, task, tList.Id)
 		if err != nil {
 			color.Red("Unable to create task: %v", err)
 			return
@@ -146,7 +153,7 @@ var markCompletedCmd = &cobra.Command{
 		fmt.Printf("Tasks in %s:\n", tList.Title)
 		tID := tList.Id
 
-		tasks, err := internal.GetTasks(srv, tID, false)
+		tasks, err := api.GetTasks(srv, tID, false)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -170,7 +177,7 @@ var markCompletedCmd = &cobra.Command{
 		t := tasks[option]
 		t.Status = "completed"
 
-		_, err = internal.UpdateTask(srv, t, tID)
+		_, err = api.UpdateTask(srv, t, tID)
 		if err != nil {
 			color.Red("Unable to mark task as completed: %v", err)
 			return
@@ -192,7 +199,7 @@ var deleteTaskCmd = &cobra.Command{
 		fmt.Printf("Tasks in %s:\n", tList.Title)
 		tID := tList.Id
 
-		tasks, err := internal.GetTasks(srv, tID, false)
+		tasks, err := api.GetTasks(srv, tID, false)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -217,7 +224,7 @@ var deleteTaskCmd = &cobra.Command{
 		t := tasks[option]
 		t.Status = "completed"
 
-		err = internal.DeleteTask(srv, t.Id, tID)
+		err = api.DeleteTask(srv, t.Id, tID)
 		if err != nil {
 			color.Red("Unable to delete task: %v", err)
 			return
@@ -247,7 +254,7 @@ func getInput(reader *bufio.Reader) string {
 }
 
 func getTaskLists(srv *tasks.Service) tasks.TaskList {
-	list, err := internal.GetTaskLists(srv)
+	list, err := api.GetTaskLists(srv)
 	if err != nil {
 		log.Fatalf("Error %v", err)
 	}

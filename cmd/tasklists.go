@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/BRO3886/gtasks/internal"
+	"github.com/BRO3886/gtasks/api"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -46,7 +46,7 @@ var showlistsCmd = &cobra.Command{
 	Long:  `view task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
-		list, err := internal.GetTaskLists(srv)
+		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -84,7 +84,7 @@ var removeListCmd = &cobra.Command{
 	Long:  `Remove a tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
-		list, err := internal.GetTaskLists(srv)
+		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -106,7 +106,7 @@ var removeListCmd = &cobra.Command{
 		}
 		fmt.Printf("%s: %s\n", color.YellowString("Deleting list"), result)
 
-		err = internal.DeleteTaskList(srv, list[option].Id)
+		err = api.DeleteTaskList(srv, list[option].Id)
 		if err != nil {
 			color.Red("Error deleting tasklist: " + err.Error())
 			return
@@ -126,7 +126,7 @@ var updateTitleCmd = &cobra.Command{
 			return
 		}
 
-		list, err := internal.GetTaskLists(srv)
+		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
 		}
@@ -149,7 +149,7 @@ var updateTitleCmd = &cobra.Command{
 		t := list[option]
 		t.Title = title
 
-		_, err = internal.UpdateTaskList(srv, &t)
+		_, err = api.UpdateTaskList(srv, &t)
 		if err != nil {
 			color.Red("Error updating tasklist: " + err.Error())
 			return

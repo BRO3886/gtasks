@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/BRO3886/gtasks/internal"
+	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
@@ -21,8 +21,8 @@ var loginCmd = &cobra.Command{
 	Short: "Logging into Google Tasks",
 	Long:  `This command uses the credentials.json file and makes a request to get your tokens`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		getClient(config)
+		c := config.ReadCredentials()
+		getClient(c)
 	},
 }
 
@@ -31,19 +31,19 @@ func init() {
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
-func getClient(config *oauth2.Config) *http.Client {
+func getClient(c *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	folderPath := internal.GetInstallLocation()
+	folderPath := config.GetInstallLocation()
 	// fmt.Println(folderPath)
 	tokFile := folderPath + "/token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
-		tok = getTokenFromWeb(config)
+		tok = getTokenFromWeb(c)
 		saveToken(tokFile, tok)
 	}
-	return config.Client(context.Background(), tok)
+	return c.Client(context.Background(), tok)
 }
 
 // Request a token from the web, then returns the retrieved token.
@@ -89,8 +89,8 @@ func saveToken(path string, token *oauth2.Token) {
 
 //gets the tasks service
 func getService() *tasks.Service {
-	config := internal.ReadCredentials()
-	client := getClient(config)
+	c := config.ReadCredentials()
+	client := getClient(c)
 
 	srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
