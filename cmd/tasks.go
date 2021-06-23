@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"bufio"
-	"context"
 	"fmt"
 	"log"
 	"os"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -16,7 +16,6 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
-	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -38,37 +37,12 @@ var viewTasksCmd = &cobra.Command{
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
+		srv := getService()
+		tList := getTaskLists(srv)
 
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
+		fmt.Printf("Tasks in %s:\n", tList.Title)
 
-		list, err := internal.GetTaskLists(srv)
-		if err != nil {
-			log.Fatalf("Error %v", err)
-		}
-
-		fmt.Println("Choose a Tasklist:")
-		var l []string
-		for _, i := range list {
-			l = append(l, i.Title)
-		}
-
-		prompt := promptui.Select{
-			Label: "Select Tasklist",
-			Items: l,
-		}
-		option, result, err := prompt.Run()
-		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
-		}
-		fmt.Printf("Tasks in %s:\n", result)
-
-		tasks, err := internal.GetTasks(srv, list[option].Id, showCompletedFlag)
+		tasks, err := internal.GetTasks(srv, tList.Id, includeCompletedFlag)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -113,35 +87,9 @@ var createTaskCmd = &cobra.Command{
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
-
-		list, err := internal.GetTaskLists(srv)
-		if err != nil {
-			log.Fatalf("Error %v", err)
-		}
-
-		fmt.Println("Choose a Tasklist:")
-		var l []string
-		for _, i := range list {
-			l = append(l, i.Title)
-		}
-
-		prompt := promptui.Select{
-			Label: "Select Tasklist",
-			Items: l,
-		}
-		option, result, err := prompt.Run()
-		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
-		}
-		fmt.Println("Creating task in " + result)
+		srv := getService()
+		tList := getTaskLists(srv)
+		fmt.Println("Creating task in " + tList.Title)
 
 		reader := bufio.NewReader(os.Stdin)
 
@@ -173,9 +121,10 @@ var createTaskCmd = &cobra.Command{
 			t := time.Date(y, time.Month(m), d, 12, 0, 0, 0, time.UTC)
 			dateString = t.Format(time.RFC3339)
 		}
+
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		_, err = internal.CreateTask(srv, task, list[option].Id)
+		_, err := internal.CreateTask(srv, task, tList.Id)
 		if err != nil {
 			color.Red("Unable to create task: %v", err)
 			return
@@ -192,36 +141,10 @@ var markCompletedCmd = &cobra.Command{
 	in a selected tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
-
-		list, err := internal.GetTaskLists(srv)
-		if err != nil {
-			log.Fatalf("Error %v", err)
-		}
-
-		fmt.Println("Choose a Tasklist:")
-		var l []string
-		for _, i := range list {
-			l = append(l, i.Title)
-		}
-
-		prompt := promptui.Select{
-			Label: "Select Tasklist",
-			Items: l,
-		}
-		option, result, err := prompt.Run()
-		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
-		}
-		fmt.Printf("Tasks in %s:\n", result)
-		tID := list[option].Id
+		srv := getService()
+		tList := getTaskLists(srv)
+		fmt.Printf("Tasks in %s:\n", tList.Title)
+		tID := tList.Id
 
 		tasks, err := internal.GetTasks(srv, tID, false)
 		if err != nil {
@@ -234,12 +157,12 @@ var markCompletedCmd = &cobra.Command{
 			tString = append(tString, i.Title)
 		}
 
-		prompt = promptui.Select{
+		prompt := promptui.Select{
 			Label: "Select Task",
 			Items: tString,
 		}
 
-		option, _, err = prompt.Run()
+		option, _, err := prompt.Run()
 		if err != nil {
 			color.Red("Error: " + err.Error())
 			return
@@ -264,36 +187,10 @@ var deleteTaskCmd = &cobra.Command{
 	for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
-
-		list, err := internal.GetTaskLists(srv)
-		if err != nil {
-			log.Fatalf("Error %v", err)
-		}
-
-		fmt.Println("Choose a Tasklist:")
-		var l []string
-		for _, i := range list {
-			l = append(l, i.Title)
-		}
-
-		prompt := promptui.Select{
-			Label: "Select Tasklist",
-			Items: l,
-		}
-		option, result, err := prompt.Run()
-		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
-		}
-		fmt.Printf("Tasks in %s:\n", result)
-		tID := list[option].Id
+		srv := getService()
+		tList := getTaskLists(srv)
+		fmt.Printf("Tasks in %s:\n", tList.Title)
+		tID := tList.Id
 
 		tasks, err := internal.GetTasks(srv, tID, false)
 		if err != nil {
@@ -306,12 +203,12 @@ var deleteTaskCmd = &cobra.Command{
 			tString = append(tString, i.Title)
 		}
 
-		prompt = promptui.Select{
+		prompt := promptui.Select{
 			Label: "Select Task",
 			Items: tString,
 		}
 
-		option, _, err = prompt.Run()
+		option, _, err := prompt.Run()
 		if err != nil {
 			color.Red("Error: " + err.Error())
 			return
@@ -329,10 +226,12 @@ var deleteTaskCmd = &cobra.Command{
 	},
 }
 
-var showCompletedFlag bool
+var includeCompletedFlag bool
+var taskListFlag string
 
 func init() {
-	viewTasksCmd.Flags().BoolVarP(&showCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
+	viewTasksCmd.Flags().BoolVarP(&includeCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
+	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
 }
@@ -345,4 +244,51 @@ func getInput(reader *bufio.Reader) string {
 		title = strings.Replace(title, "\n", "", -1)
 	}
 	return title
+}
+
+func getTaskLists(srv *tasks.Service) tasks.TaskList {
+	list, err := internal.GetTaskLists(srv)
+	if err != nil {
+		log.Fatalf("Error %v", err)
+	}
+
+	sort.SliceStable(list, func(i, j int) bool {
+		return list[i].Title <= list[j].Title
+	})
+
+	index := -1
+
+	if taskListFlag != "" {
+
+		var titles []string
+		for _, tasklist := range list {
+			titles = append(titles, tasklist.Title)
+		}
+
+		index = sort.SearchStrings(titles, taskListFlag)
+
+		if !(index >= 0 && index < len(list) && list[index].Title == taskListFlag) {
+			log.Fatal(color.RedString("incorrect task-list name"))
+		}
+
+	} else {
+		fmt.Println("Choose a Tasklist:")
+		var l []string
+		for _, i := range list {
+			l = append(l, i.Title)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select Tasklist",
+			Items: l,
+		}
+		option, _, err := prompt.Run()
+		if err != nil {
+			log.Fatal(color.RedString("Error: " + err.Error()))
+		}
+
+		index = option
+	}
+
+	return list[index]
 }

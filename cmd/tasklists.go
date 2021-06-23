@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -10,7 +9,6 @@ import (
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -47,14 +45,7 @@ var showlistsCmd = &cobra.Command{
 	Short: "view tasklists",
 	Long:  `view task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
-
+		srv := getService()
 		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
@@ -72,13 +63,7 @@ var createlistsCmd = &cobra.Command{
 	Short: "create tasklist",
 	Long:  `Create tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
+		srv := getService()
 		if title == "" {
 			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
 			return
@@ -98,14 +83,7 @@ var removeListCmd = &cobra.Command{
 	Short: "remove tasklist",
 	Long:  `Remove a tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
-
+		srv := getService()
 		list, err := internal.GetTaskLists(srv)
 		if err != nil {
 			log.Fatalf("Error %v", err)
@@ -142,15 +120,9 @@ var updateTitleCmd = &cobra.Command{
 	Short: "update tasklist title",
 	Long:  `Update tasklist title for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		config := internal.ReadCredentials()
-		client := getClient(config)
-
-		srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
-		if err != nil {
-			log.Fatalf("Unable to retrieve tasks Client %v", err)
-		}
+		srv := getService()
 		if title == "" {
-			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
+			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists update -t <TITLE>\ngtasks tasklists update --title <TITLE>")
 			return
 		}
 
@@ -177,7 +149,7 @@ var updateTitleCmd = &cobra.Command{
 		t := list[option]
 		t.Title = title
 
-		_, err = internal.UpdateTaskList(srv, t)
+		_, err = internal.UpdateTaskList(srv, &t)
 		if err != nil {
 			color.Red("Error updating tasklist: " + err.Error())
 			return

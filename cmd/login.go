@@ -11,6 +11,8 @@ import (
 	"github.com/BRO3886/gtasks/internal"
 	"github.com/spf13/cobra"
 	"golang.org/x/oauth2"
+	"google.golang.org/api/option"
+	"google.golang.org/api/tasks/v1"
 )
 
 // loginCmd represents the login command
@@ -83,4 +85,17 @@ func saveToken(path string, token *oauth2.Token) {
 	}
 	defer f.Close()
 	json.NewEncoder(f).Encode(token)
+}
+
+//gets the tasks service
+func getService() *tasks.Service {
+	config := internal.ReadCredentials()
+	client := getClient(config)
+
+	srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
+	if err != nil {
+		log.Fatalf("Unable to retrieve tasks Client %v", err)
+	}
+
+	return srv
 }

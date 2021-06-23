@@ -17,15 +17,26 @@ func CreateTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks
 }
 
 //GetTasks used to retreive tasks
-func GetTasks(srv *tasks.Service, id string, showCompleted bool) ([]*tasks.Task, error) {
-	r, err := srv.Tasks.List(id).ShowHidden(showCompleted).Do()
+func GetTasks(srv *tasks.Service, id string, includeCompleted bool) ([]*tasks.Task, error) {
+	r, err := srv.Tasks.List(id).ShowHidden(includeCompleted).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve tasks. %v", err)
 	}
 	if len(r.Items) == 0 {
 		return nil, errors.New("no Tasks found")
 	}
-	return r.Items, nil
+
+	if includeCompleted {
+		return r.Items, nil
+	} else {
+		var list []*tasks.Task
+		for _, task := range r.Items {
+			if task.Status != "completed" {
+				list = append(list, task)
+			}
+		}
+		return list, nil
+	}
 }
 
 //GetTaskInfo to get more info about a task

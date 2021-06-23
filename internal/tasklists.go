@@ -7,16 +7,37 @@ import (
 	"google.golang.org/api/tasks/v1"
 )
 
-func GetTaskLists(srv *tasks.Service) ([]*tasks.TaskList, error) {
+type TaskList []tasks.TaskList
+
+func (e TaskList) Len() int {
+	return len(e)
+}
+
+func (e TaskList) Less(i, j int) bool {
+	return e[i].Title < e[j].Title
+}
+
+func (e TaskList) Swap(i, j int) {
+	e[i], e[j] = e[j], e[i]
+}
+
+func GetTaskLists(srv *tasks.Service) ([]tasks.TaskList, error) {
 	r, err := srv.Tasklists.List().Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve task lists. %v", err)
 	}
 
+	var list []tasks.TaskList
+
 	if len(r.Items) == 0 {
 		return nil, errors.New("no Tasklist found")
 	}
-	return r.Items, nil
+
+	for _, item := range r.Items {
+		list = append(list, *item)
+	}
+
+	return list, nil
 }
 
 func UpdateTaskList(srv *tasks.Service, tl *tasks.TaskList) (*tasks.TaskList, error) {
