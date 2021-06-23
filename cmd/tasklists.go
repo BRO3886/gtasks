@@ -2,10 +2,9 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
-	"log"
 
 	"github.com/BRO3886/gtasks/api"
+	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -48,11 +47,11 @@ var showlistsCmd = &cobra.Command{
 		srv := getService()
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
-			log.Fatalf("Error %v", err)
+			utils.ErrorP("Error: %v\n", err)
 		}
 
 		for index, i := range list {
-			fmt.Printf("[%d] %s\n", index+1, i.Title)
+			utils.Print("[%d] %s\n", index+1, i.Title)
 		}
 
 	},
@@ -65,16 +64,16 @@ var createlistsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		if title == "" {
-			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
+			utils.Warn("%s\n", "Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
 			return
 		}
 		t := &tasks.TaskList{Title: title}
 		r, err := srv.Tasklists.Insert(t).Do()
 		if err != nil {
-			log.Fatalf("Unable to create task list. %v", err)
+			utils.ErrorP("Unable to create task list. %v", err)
 		}
 		title = ""
-		fmt.Println(color.GreenString("Created: ") + r.Title)
+		utils.Info("task list created: %s", r.Title)
 	},
 }
 
@@ -86,10 +85,10 @@ var removeListCmd = &cobra.Command{
 		srv := getService()
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
-			log.Fatalf("Error %v", err)
+			utils.ErrorP("Error %v", err)
 		}
 
-		fmt.Println("Choose a Tasklist:")
+		utils.Print("Choose a Tasklist: ")
 		var l []string
 		for _, i := range list {
 			l = append(l, i.Title)
@@ -104,14 +103,14 @@ var removeListCmd = &cobra.Command{
 			color.Red("Error: " + err.Error())
 			return
 		}
-		fmt.Printf("%s: %s\n", color.YellowString("Deleting list"), result)
+		utils.Print("%s: %s\n", utils.WarnStyle.Sprint("Deleting list..."), result)
 
 		err = api.DeleteTaskList(srv, list[option].Id)
 		if err != nil {
-			color.Red("Error deleting tasklist: " + err.Error())
+			utils.ErrorP("Error deleting tasklist: %s", err.Error())
 			return
 		}
-		color.Green("Tasklist deleted")
+		utils.Info("Tasklist deleted")
 	},
 }
 
@@ -122,16 +121,16 @@ var updateTitleCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		if title == "" {
-			fmt.Println("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists update -t <TITLE>\ngtasks tasklists update --title <TITLE>")
+			utils.Warn("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists update -t <TITLE>\ngtasks tasklists update --title <TITLE>\n")
 			return
 		}
 
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
-			log.Fatalf("Error %v", err)
+			utils.ErrorP(utils.Error("Error %v", err))
 		}
 
-		fmt.Println("Choose a Tasklist:")
+		utils.Print("Choose a Tasklist:")
 		var l []string
 		for _, i := range list {
 			l = append(l, i.Title)
@@ -143,18 +142,16 @@ var updateTitleCmd = &cobra.Command{
 		}
 		option, _, err := prompt.Run()
 		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
+			utils.ErrorP("Error: %s", err.Error())
 		}
 		t := list[option]
 		t.Title = title
 
 		_, err = api.UpdateTaskList(srv, &t)
 		if err != nil {
-			color.Red("Error updating tasklist: " + err.Error())
-			return
+			utils.ErrorP("Error updating tasklist: ", err.Error())
 		}
-		color.Green("Tasklist title updated")
+		utils.Info("Tasklist title updated")
 	},
 }
 

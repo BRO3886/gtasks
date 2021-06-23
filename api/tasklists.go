@@ -2,8 +2,8 @@ package api
 
 import (
 	"errors"
-	"log"
 
+	"github.com/BRO3886/gtasks/internal/utils"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -24,7 +24,7 @@ func (e TaskList) Swap(i, j int) {
 func GetTaskLists(srv *tasks.Service) ([]tasks.TaskList, error) {
 	r, err := srv.Tasklists.List().Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve task lists. %v", err)
+		utils.ErrorP("Unable to retrieve task lists. %v\n", err)
 	}
 
 	var list []tasks.TaskList

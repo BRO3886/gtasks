@@ -1,8 +1,7 @@
 package config
 
 import (
-	"log"
-
+	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/kardianos/osext"
 )
 
@@ -10,7 +9,7 @@ import (
 func GetInstallLocation() string {
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {
-		log.Fatal(err)
+		utils.ErrorP("Get install location: %s", err.Error())
 	}
 	return folderPath
 }

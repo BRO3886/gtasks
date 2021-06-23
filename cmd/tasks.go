@@ -3,7 +3,6 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"sort"
@@ -12,6 +11,7 @@ import (
 	"time"
 
 	"github.com/BRO3886/gtasks/api"
+	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
@@ -47,7 +47,7 @@ var viewTasksCmd = &cobra.Command{
 		srv := getService()
 		tList := getTaskLists(srv)
 
-		fmt.Printf("Tasks in %s:\n", tList.Title)
+		utils.Print("Tasks in %s:\n", tList.Title)
 
 		tasks, err := api.GetTasks(srv, tList.Id, includeCompletedFlag)
 		if err != nil {
@@ -96,15 +96,15 @@ var createTaskCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		tList := getTaskLists(srv)
-		fmt.Println("Creating task in " + tList.Title)
+		utils.Warn("Creating task in %s\n", tList.Title)
 
 		reader := bufio.NewReader(os.Stdin)
 
-		fmt.Printf("Title: ")
+		utils.Print("Title: ")
 		title := getInput(reader)
-		fmt.Printf("Note: ")
+		utils.Print("Note: ")
 		notes := getInput(reader)
-		fmt.Printf("Due Date (dd/mm/yyyy): ")
+		utils.Print("Due Date (dd/mm/yyyy): ")
 		dateInput := getInput(reader)
 
 		var dateString string
@@ -136,7 +136,7 @@ var createTaskCmd = &cobra.Command{
 			color.Red("Unable to create task: %v", err)
 			return
 		}
-		color.Green("Task created")
+		utils.Info("Task created\n")
 	},
 }
 
@@ -150,7 +150,7 @@ var markCompletedCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		tList := getTaskLists(srv)
-		fmt.Printf("Tasks in %s:\n", tList.Title)
+		utils.Print("Tasks in %s:\n", tList.Title)
 		tID := tList.Id
 
 		tasks, err := api.GetTasks(srv, tID, false)
@@ -196,7 +196,7 @@ var deleteTaskCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		tList := getTaskLists(srv)
-		fmt.Printf("Tasks in %s:\n", tList.Title)
+		utils.Print("Tasks in %s:\n", tList.Title)
 		tID := tList.Id
 
 		tasks, err := api.GetTasks(srv, tID, false)
@@ -229,7 +229,7 @@ var deleteTaskCmd = &cobra.Command{
 			color.Red("Unable to delete task: %v", err)
 			return
 		}
-		fmt.Printf("%s: %s\n", color.GreenString("Deleted"), t.Title)
+		utils.Info("Deleted: %s\n", t.Title)
 	},
 }
 
@@ -256,7 +256,7 @@ func getInput(reader *bufio.Reader) string {
 func getTaskLists(srv *tasks.Service) tasks.TaskList {
 	list, err := api.GetTaskLists(srv)
 	if err != nil {
-		log.Fatalf("Error %v", err)
+		utils.ErrorP("Error %v", err)
 	}
 
 	sort.SliceStable(list, func(i, j int) bool {
@@ -275,11 +275,11 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 		index = sort.SearchStrings(titles, taskListFlag)
 
 		if !(index >= 0 && index < len(list) && list[index].Title == taskListFlag) {
-			log.Fatal(color.RedString("incorrect task-list name"))
+			utils.ErrorP("%s\n", "incorrect task-list name")
 		}
 
 	} else {
-		fmt.Println("Choose a Tasklist:")
+		utils.Print("Choose a Tasklist:")
 		var l []string
 		for _, i := range list {
 			l = append(l, i.Title)
@@ -291,7 +291,7 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 		}
 		option, _, err := prompt.Run()
 		if err != nil {
-			log.Fatal(color.RedString("Error: " + err.Error()))
+			utils.ErrorP("Error: %s", err.Error())
 		}
 
 		index = option

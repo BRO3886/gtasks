@@ -2,8 +2,8 @@ package api
 
 import (
 	"errors"
-	"log"
 
+	"github.com/BRO3886/gtasks/internal/utils"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -20,7 +20,7 @@ func CreateTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks
 func GetTasks(srv *tasks.Service, id string, includeCompleted bool) ([]*tasks.Task, error) {
 	r, err := srv.Tasks.List(id).ShowHidden(includeCompleted).Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve tasks. %v", err)
+		utils.ErrorP("Unable to retrieve tasks. %v", err)
 	}
 	if len(r.Items) == 0 {
 		return nil, errors.New("no Tasks found")
