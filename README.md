@@ -75,45 +75,67 @@ Use "gtasks [command] --help" for more information about a command.
 
 ## Commands
 
+### Help
 * To see details about a command
 ```bash
 gtasks <COMMAND> help
 ```
 
+### Login
 * Login
 ```bash
 gtasks login
 ```
+
+### Tasklists
 * Viewing Tasklists
 ```bash
 gtasks tasklists view
 ```
+
 * Creating a Tasklist
 ```bash
 gtasks tasklists create -t 'title'
 gtasks tasklists create --title 'title'
 ```
+
 * Deleting a Tasklist
 ```bash
 gtasks tasklists rm
 ```
+
+### Tasks
+* To pre-select tasklist, provide it's title as follows:
+```bash
+gtasks tasks -l <title> subcommand [--subcommand-flags]
+```
+Examples:
+```bash
+gtasks tasks [--tasklist|-l] "DSC VIT" view [--include-completed | -i]
+```
+**Note:** If the `-l` flag is not provided you will be able to choose a tasklist from the prompt
+
 * Viewing tasks
 ```bash
 gtasks tasks view
 ```
-* Viewing completed tasks
+
+* Include completed tasks
 ```bash
-gtasks tasks view -c
-gtasks tasks view --completed
+gtasks tasks view -i
+gtasks tasks view --include-completed
 ```
+
 * Adding a task
 ```bash
 gtasks tasks add
 ```
+
 * Mark task as completed
 ```bash
 gtasks tasks done
 ```
+
 * Deleting a task
 ```bash
 gtasks tasks rm

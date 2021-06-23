@@ -1,10 +1,10 @@
-package internal
+package config
 
 import (
 	"io/ioutil"
-	"log"
 	"os"
 
+	"github.com/BRO3886/gtasks/internal/utils"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/tasks/v1"
@@ -15,17 +15,14 @@ func ReadCredentials() *oauth2.Config {
 	folderPath := GetInstallLocation()
 	b, err := ioutil.ReadFile(folderPath + "/config.json")
 	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+		utils.ErrorP("Unable to read client secret file: %v", err)
 	}
 	config, err := google.ConfigFromJSON(b, tasks.TasksScope)
 	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
+		utils.ErrorP("Unable to parse client secret file to config: %v", err)
 	}
 	return config
 }
-
-
-
 
 func GenerateConfig() {
 	credString := `
