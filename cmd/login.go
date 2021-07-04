@@ -87,7 +87,7 @@ func saveToken(path string, token *oauth2.Token) {
 	json.NewEncoder(f).Encode(token)
 }
 
-//gets the tasks service
+// gets the tasks service
 func getService() *tasks.Service {
 	c := config.ReadCredentials()
 	client := getClient(c)

@@ -17,13 +17,6 @@ all:
 	@tar -czf bin/releases/gtasks_win.tar.gz LICENSE -C  bin/windows gtasks.exe
 	@tar -czf bin/releases/gtasks_mac_amd64.tar.gz LICENSE -C bin/mac gtasks 
 	@tar -czf bin/releases/gtasks_bsd.tar.gz LICENSE -C bin/freebsd gtasks
-run:
-	go run .
-global:
-	go install .
-push:
-	git add .
-	git commit -m "$m"
-	git push origin master
+
 release:
 	gh release create $v 'bin/releases/gtasks_linux.tar.gz' 'bin/releases/gtasks_win.tar.gz' 'bin/releases/gtasks_bsd.tar.gz' 'bin/releases/gtasks_mac_amd64.tar.gz' 

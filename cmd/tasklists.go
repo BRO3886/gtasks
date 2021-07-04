@@ -53,7 +53,6 @@ var showlistsCmd = &cobra.Command{
 		for index, i := range list {
 			utils.Print("[%d] %s\n", index+1, i.Title)
 		}
-
 	},
 }
 

@@ -5,7 +5,7 @@ import (
 	"github.com/kardianos/osext"
 )
 
-//GetInstallLocation to get the install loc of binary
+// GetInstallLocation to get the install loc of binary
 func GetInstallLocation() string {
 	folderPath, err := osext.ExecutableFolder()
 	if err != nil {

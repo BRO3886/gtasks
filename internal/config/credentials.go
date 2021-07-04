@@ -10,7 +10,7 @@ import (
 	"google.golang.org/api/tasks/v1"
 )
 
-//ReadCredentials reads the config.json file
+// ReadCredentials reads the config.json file
 func ReadCredentials() *oauth2.Config {
 	folderPath := GetInstallLocation()
 	b, err := ioutil.ReadFile(folderPath + "/config.json")
