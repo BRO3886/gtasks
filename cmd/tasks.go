@@ -113,7 +113,7 @@ var createTaskCmd = &cobra.Command{
 			// All possible examples: https://github.com/araddon/dateparse#extended-example
 			t, err := dateparse.ParseAny(dateInput)
 			if err != nil {
-				utils.ErrorP("%s", "date Format incorrect")
+				utils.ErrorP("%s\n", "date Format incorrect. Some valid date examples here: https://katb.in/kat2821")
 			}
 
 			dateString = t.Format(time.RFC3339)
