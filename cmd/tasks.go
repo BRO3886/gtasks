@@ -222,7 +222,7 @@ func getTaskIndex(args []string, tasks []*tasks.Task, title string) int {
 		argProvided = true
 
 		index, err := strconv.Atoi(args[0])
-		if err != nil || index >= len(tasks) || index < 1 {
+		if err != nil || index > len(tasks) || index < 1 {
 			utils.ErrorP("%s", "Incorrect task number\n")
 		}
 
