@@ -14,6 +14,10 @@ var PrintStyle = color.New(color.FgWhite)
 var Warn = WarnStyle.PrintfFunc()
 var Error = ErrorStyle.SprintfFunc()
 
+// print errors with a format, interface like in printf
+// Example:
+// 
+// ErrorP("%d",1)
 func ErrorP(format string, a ...interface{}) {
 	ErrorStyle.Printf(format, a...)
 	os.Exit(1)

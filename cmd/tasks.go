@@ -12,6 +12,7 @@ import (
 
 	"github.com/BRO3886/gtasks/api"
 	"github.com/BRO3886/gtasks/internal/utils"
+	"github.com/araddon/dateparse"
 	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/olekukonko/tablewriter"
@@ -82,7 +83,6 @@ var viewTasksCmd = &cobra.Command{
 
 		}
 		table.Render()
-
 	},
 }
 
@@ -104,36 +104,28 @@ var createTaskCmd = &cobra.Command{
 		title := getInput(reader)
 		utils.Print("Note: ")
 		notes := getInput(reader)
-		utils.Print("Due Date (dd/mm/yyyy): ")
+		utils.Print("Due Date: ")
 		dateInput := getInput(reader)
 
 		var dateString string
 
-		if dateInput == "" {
-			dateString = ""
-		} else {
-			arr := strings.Split(dateInput, "/")
-			if len(arr) < 3 {
-				color.Red("Date format incorrect")
-				return
+		if dateInput != "" {
+			// All possible examples: https://github.com/araddon/dateparse#extended-example
+			t, err := dateparse.ParseAny(dateInput)
+			if err != nil {
+				utils.ErrorP("%s", "date Format incorrect")
 			}
-			y, _ := strconv.Atoi(arr[2])
-			if y < time.Now().Year() {
-				color.Yellow("Please enter a valid year")
-				return
-			}
-			d, _ := strconv.Atoi(arr[0])
-			m, _ := strconv.Atoi(arr[1])
 
-			t := time.Date(y, time.Month(m), d, 12, 0, 0, 0, time.UTC)
 			dateString = t.Format(time.RFC3339)
+		} else {
+			dateString = ""
 		}
 
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
 		_, err := api.CreateTask(srv, task, tList.Id)
 		if err != nil {
-			color.Red("Unable to create task: %v", err)
+			utils.ErrorStyle.Printf("Unable to create task: %v", err)
 			return
 		}
 		utils.Info("Task created\n")
@@ -150,7 +142,6 @@ var markCompletedCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		tList := getTaskLists(srv)
-		utils.Print("Tasks in %s:\n", tList.Title)
 		tID := tList.Id
 
 		tasks, err := api.GetTasks(srv, tID, false)
@@ -159,22 +150,45 @@ var markCompletedCmd = &cobra.Command{
 			return
 		}
 
-		tString := []string{}
-		for _, i := range tasks {
-			tString = append(tString, i.Title)
+		var taskIndex int
+		argProvided := false
+
+		if len(args) == 1 {
+			argProvided = true
+
+			index, err := strconv.Atoi(args[0])
+			if err != nil || index >= len(tasks) {
+				utils.ErrorP("%s", "Incorrect task number\n")
+			}
+
+			taskIndex = index
+		} else {
+			utils.Print("Tasks in %s:\n", tList.Title)
+
+			tString := []string{}
+			for _, i := range tasks {
+				tString = append(tString, i.Title)
+			}
+
+			prompt := promptui.Select{
+				Label: "Select Task",
+				Items: tString,
+			}
+
+			option, _, err := prompt.Run()
+			if err != nil {
+				color.Red("Error: \n" + err.Error())
+				return
+			}
+
+			taskIndex = option
 		}
 
-		prompt := promptui.Select{
-			Label: "Select Task",
-			Items: tString,
+		if argProvided {
+			taskIndex--
 		}
 
-		option, _, err := prompt.Run()
-		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
-		}
-		t := tasks[option]
+		t := tasks[taskIndex]
 		t.Status = "completed"
 
 		_, err = api.UpdateTask(srv, t, tID)
@@ -182,7 +196,7 @@ var markCompletedCmd = &cobra.Command{
 			color.Red("Unable to mark task as completed: %v", err)
 			return
 		}
-		color.Green("Marked as complete: " + t.Title)
+		utils.Info("Marked as complete: %s\n", t.Title)
 	},
 }
 
@@ -233,8 +247,10 @@ var deleteTaskCmd = &cobra.Command{
 	},
 }
 
-var includeCompletedFlag bool
-var taskListFlag string
+var (
+	includeCompletedFlag bool
+	taskListFlag         string
+)
 
 func init() {
 	viewTasksCmd.Flags().BoolVarP(&includeCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
