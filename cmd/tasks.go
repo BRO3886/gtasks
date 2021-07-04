@@ -150,45 +150,8 @@ var markCompletedCmd = &cobra.Command{
 			return
 		}
 
-		var taskIndex int
-		argProvided := false
-
-		if len(args) == 1 {
-			argProvided = true
-
-			index, err := strconv.Atoi(args[0])
-			if err != nil || index >= len(tasks) {
-				utils.ErrorP("%s", "Incorrect task number\n")
-			}
-
-			taskIndex = index
-		} else {
-			utils.Print("Tasks in %s:\n", tList.Title)
-
-			tString := []string{}
-			for _, i := range tasks {
-				tString = append(tString, i.Title)
-			}
-
-			prompt := promptui.Select{
-				Label: "Select Task",
-				Items: tString,
-			}
-
-			option, _, err := prompt.Run()
-			if err != nil {
-				color.Red("Error: \n" + err.Error())
-				return
-			}
-
-			taskIndex = option
-		}
-
-		if argProvided {
-			taskIndex--
-		}
-
-		t := tasks[taskIndex]
+		ind := getTaskIndex(args, tasks, tList.Title)
+		t := tasks[ind]
 		t.Status = "completed"
 
 		_, err = api.UpdateTask(srv, t, tID)
@@ -210,7 +173,6 @@ var deleteTaskCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		srv := getService()
 		tList := getTaskLists(srv)
-		utils.Print("Tasks in %s:\n", tList.Title)
 		tID := tList.Id
 
 		tasks, err := api.GetTasks(srv, tID, false)
@@ -219,24 +181,8 @@ var deleteTaskCmd = &cobra.Command{
 			return
 		}
 
-		tString := []string{}
-		for _, i := range tasks {
-			tString = append(tString, i.Title)
-		}
-
-		prompt := promptui.Select{
-			Label: "Select Task",
-			Items: tString,
-		}
-
-		option, _, err := prompt.Run()
-		if err != nil {
-			color.Red("Error: " + err.Error())
-			return
-		}
-
-		t := tasks[option]
-		t.Status = "completed"
+		ind := getTaskIndex(args, tasks, tList.Title)
+		t := tasks[ind]
 
 		err = api.DeleteTask(srv, t.Id, tID)
 		if err != nil {
@@ -267,6 +213,46 @@ func getInput(reader *bufio.Reader) string {
 		title = strings.Replace(title, "\n", "", -1)
 	}
 	return title
+}
+
+func getTaskIndex(args []string, tasks []*tasks.Task, title string) int {
+	var taskIndex int
+	argProvided := false
+	if len(args) == 1 {
+		argProvided = true
+
+		index, err := strconv.Atoi(args[0])
+		if err != nil || index >= len(tasks) || index < 1 {
+			utils.ErrorP("%s", "Incorrect task number\n")
+		}
+
+		taskIndex = index
+	} else {
+		utils.Print("Tasks in %s:\n", title)
+
+		tString := []string{}
+		for _, i := range tasks {
+			tString = append(tString, i.Title)
+		}
+
+		prompt := promptui.Select{
+			Label: "Select Task",
+			Items: tString,
+		}
+
+		option, _, err := prompt.Run()
+		if err != nil {
+			utils.ErrorP("Error: %s\n", err.Error())
+		}
+
+		taskIndex = option
+	}
+
+	if argProvided {
+		taskIndex--
+	}
+
+	return taskIndex
 }
 
 func getTaskLists(srv *tasks.Service) tasks.TaskList {
