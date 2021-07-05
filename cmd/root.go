@@ -21,7 +21,7 @@ var rootCmd = &cobra.Command{
 	A CLI Tool for managing your Google Tasks:
 	
 	* Run gtasks help for checking out inline help
-	* Run gtasks tasks login to log-in with your Google account
+	* Run gtasks login to log-in with your Google account
 
 	Made with ❤ by https://github.com/BRO3886
 `,
