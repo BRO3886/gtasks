@@ -1,0 +1,55 @@
+baseURL = "/"
+languageCode = "en-us"
+title = "Google Tasks CLI"
+themesDir = "themes"
+theme = "hugo-whisper-theme"
+
+pygmentsCodeFences = true
+pygmentsCodefencesGuessSyntax = true
+pygmentsUseClasses = true
+
+# Controls how many words are printed in the content summary on the docs homepage.
+# See https://gohugo.io/content-management/summaries/
+summaryLength = 30
+
+[[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+
+[[menu.main]]
+    name = "Usage"
+    url = "/docs"
+    weight = 2
+
+[[menu.main]]
+    name = "Me"
+    url = "https://sidv.dev"
+    weight = 3
+
+
+[params]
+  google_analytics_id=""
+  homepage_button_link = '/docs'
+  homepage_button_text = 'Check it out'
+  homepage_intro = 'Gtasks is a Google Tasks CLI client, written in Go'
+  homepage_image = '/images/screenshot.png'
+
+  ## You can enable to add anchor links to header elements
+  # enable_anchor_link = true
+
+  [params.homepage_meta_tags]
+    meta_description = "Gtasks is a Google Tasks CLI client, written in Go"
+    meta_og_title = "gtasks"
+    meta_og_type = "website"
+    # TODO: modify
+    meta_og_url = "https://gtasks.sidv.dev"
+    meta_og_image = "https://gtasks.sidv.dev/images/screenshot.png"
+    meta_og_description = "Gtasks is a Google Tasks CLI client, written in Go"
+    meta_twitter_card = "summary"
+    meta_twitter_site = "@sidv_22"
+    meta_twitter_creator = "@sidv_22"
+
+  [params.logo]
+      mobile = "/images/logo-mobile.svg"
+      standard  = "/images/logo.svg"
