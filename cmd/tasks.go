@@ -98,14 +98,28 @@ var createTaskCmd = &cobra.Command{
 		tList := getTaskLists(srv)
 		utils.Warn("Creating task in %s\n", tList.Title)
 
-		reader := bufio.NewReader(os.Stdin)
+		var title string
+		var notes string
+		var dateInput string
 
-		utils.Print("Title: ")
-		title := getInput(reader)
-		utils.Print("Note: ")
-		notes := getInput(reader)
-		utils.Print("Due Date: ")
-		dateInput := getInput(reader)
+		if addTaskFlags.title == "" && (addTaskFlags.note != "" || addTaskFlags.due != "") {
+			utils.ErrorP("Please specify a task title")
+			return
+		} else if addTaskFlags.title != "" {
+			title = addTaskFlags.title
+			notes = addTaskFlags.note
+			dateInput = addTaskFlags.due
+
+		} else {
+			reader := bufio.NewReader(os.Stdin)
+
+			utils.Print("Title: ")
+			title = getInput(reader)
+			utils.Print("Note: ")
+			notes = getInput(reader)
+			utils.Print("Due Date: ")
+			dateInput = getInput(reader)
+		}
 
 		var dateString string
 
@@ -196,9 +210,17 @@ var deleteTaskCmd = &cobra.Command{
 var (
 	includeCompletedFlag bool
 	taskListFlag         string
+	addTaskFlags         struct {
+		title string
+		note  string
+		due   string
+	}
 )
 
 func init() {
+	createTaskCmd.Flags().StringVar(&addTaskFlags.title, "title", "", "use this flag to set a tasks title")
+	createTaskCmd.Flags().StringVar(&addTaskFlags.note, "note", "", "use this flag to set a tasks note")
+	createTaskCmd.Flags().StringVar(&addTaskFlags.due, "due", "", "use this flag to set a tasks due date")
 	viewTasksCmd.Flags().BoolVarP(&includeCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
 	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
