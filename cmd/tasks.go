@@ -50,7 +50,7 @@ var viewTasksCmd = &cobra.Command{
 
 		utils.Print("Tasks in %s:\n", tList.Title)
 
-		tasks, err := api.GetTasks(srv, tList.Id, includeCompletedFlag)
+		tasks, err := api.GetTasks(srv, tList.Id, viewTasksFlags.includeCompleted || viewTasksFlags.onlyCompleted)
 		if err != nil {
 			color.Red(err.Error())
 			return
@@ -77,6 +77,10 @@ var viewTasksCmd = &cobra.Command{
 		// table.SetRowSeparator("-")
 
 		for ind, task := range tasks {
+			if viewTasksFlags.onlyCompleted && task.Status == "needsAction" {
+				continue
+			}
+
 			row := []string{fmt.Sprintf("%d", ind+1), task.Title, task.Notes}
 
 			if task.Status == "needsAction" {
@@ -221,9 +225,12 @@ var deleteTaskCmd = &cobra.Command{
 }
 
 var (
-	includeCompletedFlag bool
-	taskListFlag         string
-	addTaskFlags         struct {
+	viewTasksFlags struct {
+		includeCompleted bool
+		onlyCompleted    bool
+	}
+	taskListFlag string
+	addTaskFlags struct {
 		title string
 		note  string
 		due   string
@@ -234,7 +241,8 @@ func init() {
 	createTaskCmd.Flags().StringVarP(&addTaskFlags.title, "title", "t", "", "use this flag to set a tasks title")
 	createTaskCmd.Flags().StringVarP(&addTaskFlags.note, "note", "n", "", "use this flag to set a tasks note")
 	createTaskCmd.Flags().StringVarP(&addTaskFlags.due, "due", "d", "", "use this flag to set a tasks due date")
-	viewTasksCmd.Flags().BoolVarP(&includeCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
+	viewTasksCmd.Flags().BoolVarP(&viewTasksFlags.includeCompleted, "include-completed", "i", false, "use this flag to include completed tasks")
+	viewTasksCmd.Flags().BoolVar(&viewTasksFlags.onlyCompleted, "completed", false, "use this flag to only show completed tasks")
 	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
