@@ -56,6 +56,19 @@ var viewTasksCmd = &cobra.Command{
 			return
 		}
 
+		// sort tasks by date
+		sort.SliceStable(tasks, func(i, j int) bool {
+			if tasks[i].Due == "" {
+				return false
+			}
+
+			if tasks[j].Due == "" {
+				return true
+			}
+
+			return tasks[i].Due < tasks[j].Due
+		})
+
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"No", "Title", "Description", "Status", "Due"})
 		table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
