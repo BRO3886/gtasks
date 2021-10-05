@@ -218,9 +218,9 @@ var (
 )
 
 func init() {
-	createTaskCmd.Flags().StringVar(&addTaskFlags.title, "title", "", "use this flag to set a tasks title")
-	createTaskCmd.Flags().StringVar(&addTaskFlags.note, "note", "", "use this flag to set a tasks note")
-	createTaskCmd.Flags().StringVar(&addTaskFlags.due, "due", "", "use this flag to set a tasks due date")
+	createTaskCmd.Flags().StringVarP(&addTaskFlags.title, "title", "t", "", "use this flag to set a tasks title")
+	createTaskCmd.Flags().StringVarP(&addTaskFlags.note, "note", "n", "", "use this flag to set a tasks note")
+	createTaskCmd.Flags().StringVarP(&addTaskFlags.due, "due", "d", "", "use this flag to set a tasks due date")
 	viewTasksCmd.Flags().BoolVarP(&includeCompletedFlag, "include-completed", "i", false, "use this flag to include completed tasks")
 	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
