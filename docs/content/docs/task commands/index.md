@@ -59,7 +59,7 @@ Due Date: 12 July 2021
 ```
 * For a shorthand syntax use:
 ```
-gtasks tasks add -l "DSC VIT"
+gtasks tasks add -l "DSC VIT" --title <some title> [--note <some note> | --due <some due date>]
 ```
 
 ## View all tasks in a tasklist
@@ -121,6 +121,12 @@ Tasks in DSC VIT:
 | 10 | asjla                    | sjasj                          | ✔      | 12 July 2021     |
 | 11 | testing                  | testing 1 2 3                  | ✔      | No Due Date      |
 | 12 | abdcd                    | ahfje                          | ✔      | 10 July 2021     |
+```
+* To show completed tasks:
+```
+❯ gtasks tasks view --completed
+
+❯ gtasks tasks -l "DSC VIT" view --completed
 ```
 
 ## Mark task as done
