@@ -14,11 +14,11 @@ all:
 	GOOS=darwin GOARCH=amd64 go build -o ./bin/mac/gtasks
 	GOOS=darwin GOARCH=arm64 go build -o ./bin/m1/gtasks
 	@echo "Zipping for release"
-	@tar -czf bin/releases/gtasks_linux.tar.gz LICENSE -C bin/linux gtasks
-	@tar -czf bin/releases/gtasks_win.tar.gz LICENSE -C  bin/windows gtasks.exe
-	@tar -czf bin/releases/gtasks_mac_amd64.tar.gz LICENSE -C bin/mac gtasks 
-	@tar -czf bin/releases/gtasks_mac_m1_arm64.tar.gz LICENSE -C bin/m1 gtasks 
-	@tar -czf bin/releases/gtasks_bsd.tar.gz LICENSE -C bin/freebsd gtasks
+	@tar -czf bin/releases/gtasks_linux_$v.tar.gz LICENSE -C bin/linux gtasks
+	@tar -czf bin/releases/gtasks_win_$v.tar.gz LICENSE -C  bin/windows gtasks.exe
+	@tar -czf bin/releases/gtasks_mac_amd64_$v.tar.gz LICENSE -C bin/mac gtasks 
+	@tar -czf bin/releases/gtasks_mac_m1_arm64_$v.tar.gz LICENSE -C bin/m1 gtasks 
+	@tar -czf bin/releases/gtasks_bsd_$v.tar.gz LICENSE -C bin/freebsd gtasks
 
 release:
-	gh release create $v 'bin/releases/gtasks_linux.tar.gz' 'bin/releases/gtasks_win.tar.gz' 'bin/releases/gtasks_bsd.tar.gz' 'bin/releases/gtasks_mac_amd64.tar.gz' 'bin/releases/gtasks_mac_m1_arm64.tar.gz'
+	gh release create $v 'bin/releases/gtasks_linux_$v.tar.gz' 'bin/releases/gtasks_win_$v.tar.gz' 'bin/releases/gtasks_bsd_$v.tar.gz' 'bin/releases/gtasks_mac_amd64_$v.tar.gz' 'bin/releases/gtasks_mac_m1_arm64_$v.tar.gz'
