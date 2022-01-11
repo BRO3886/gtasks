@@ -22,8 +22,9 @@
 
 ## Instructions to install
 
+(make sure `$HOME/go/bin` is added to `$PATH`
 ```bash
-go get github.com/BRO3886/gtasks
+go install github.com/BRO3886/gtasks@latest
 ```
 or you can download the binary: 
 
