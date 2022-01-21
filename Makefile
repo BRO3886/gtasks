@@ -6,6 +6,11 @@ linux:
 	go build -o ./bin/linux/gtasks
 	@ cd bin/linux
 	gtasks
+mac:
+	@echo "Building for mac"
+	GOOS=darwin GOARCH=amd64 go build -o ./bin/mac/gtasks
+	@ cd bin/mac
+	gtasks
 all:
 	@echo "Building for every OS and Platform"
 	GOOS=windows GOARCH=386 GO386=softfloat go build -o ./bin/windows/gtasks.exe

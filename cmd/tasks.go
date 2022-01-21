@@ -56,25 +56,15 @@ var viewTasksCmd = &cobra.Command{
 			return
 		}
 
-		// sort tasks by date
-		sort.SliceStable(tasks, func(i, j int) bool {
-			if tasks[i].Due == "" {
-				return false
-			}
-
-			if tasks[j].Due == "" {
-				return true
-			}
-
-			return tasks[i].Due < tasks[j].Due
-		})
+		utils.Sort(tasks, viewTasksFlags.sort)
 
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"No", "Title", "Description", "Status", "Due"})
-		table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+		table.SetAlignment(tablewriter.ALIGN_LEFT)
+		table.SetBorder(false)
 		table.SetCenterSeparator("|")
-		// table.SetRowLine(true)
-		// table.SetRowSeparator("-")
+		table.SetRowLine(false)
+		table.SetRowSeparator("-")
 
 		for ind, task := range tasks {
 			if viewTasksFlags.onlyCompleted && task.Status == "needsAction" {
@@ -91,14 +81,14 @@ var viewTasksCmd = &cobra.Command{
 
 			due, err := time.Parse(time.RFC3339, task.Due)
 			if err != nil {
-				row = append(row, "No Due Date")
+				row = append(row, "-")
 			} else {
 				row = append(row, due.Local().Format("02 January 2006"))
 			}
 
 			table.Append(row)
-
 		}
+
 		table.Render()
 	},
 }
@@ -228,6 +218,7 @@ var (
 	viewTasksFlags struct {
 		includeCompleted bool
 		onlyCompleted    bool
+		sort             string
 	}
 	taskListFlag string
 	addTaskFlags struct {
@@ -243,6 +234,7 @@ func init() {
 	createTaskCmd.Flags().StringVarP(&addTaskFlags.due, "due", "d", "", "use this flag to set a tasks due date")
 	viewTasksCmd.Flags().BoolVarP(&viewTasksFlags.includeCompleted, "include-completed", "i", false, "use this flag to include completed tasks")
 	viewTasksCmd.Flags().BoolVar(&viewTasksFlags.onlyCompleted, "completed", false, "use this flag to only show completed tasks")
+	viewTasksCmd.Flags().StringVar(&viewTasksFlags.sort, "sort", "position", "use this flag to sort by [due,title,position]")
 	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
 	rootCmd.AddCommand(tasksCmd)

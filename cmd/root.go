@@ -12,11 +12,14 @@ import (
 
 var cfgFile string
 
+// version is set during build
+var Version = "DEV"
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "gtasks",
 	Short:   "A CLI Tool for Google Tasks",
-	Version: "0.9.5",
+	Version: Version,
 	Long: `
 	A CLI Tool for managing your Google Tasks:
 	

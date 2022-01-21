@@ -39,6 +39,14 @@ func GetTasks(srv *tasks.Service, id string, includeCompleted bool) ([]*tasks.Ta
 	}
 }
 
+func MakeMap(taskList []*tasks.Task) map[string]tasks.Task {
+	m := make(map[string]tasks.Task)
+	for _, t := range taskList {
+		m[t.Id] = *t
+	}
+	return m
+}
+
 // GetTaskInfo to get more info about a task
 func GetTaskInfo(srv *tasks.Service, id string, taskID string) (*tasks.Task, error) {
 	r, err := srv.Tasks.Get(id, taskID).Do()
