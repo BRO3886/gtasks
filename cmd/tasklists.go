@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"errors"
-
 	"github.com/BRO3886/gtasks/api"
 	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/fatih/color"
@@ -29,14 +27,6 @@ var tasklistsCmd = &cobra.Command{
 	gtasks tasklists rm
 
 	`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("requires at least one arg. Use -h to show the list of available commands")
-		}
-		return nil
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-	},
 }
 
 var showlistsCmd = &cobra.Command{
@@ -44,7 +34,7 @@ var showlistsCmd = &cobra.Command{
 	Short: "view tasklists",
 	Long:  `view task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := getService()
+		srv := api.GetService()
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			utils.ErrorP("Error: %v\n", err)
@@ -56,12 +46,12 @@ var showlistsCmd = &cobra.Command{
 	},
 }
 
-var createlistsCmd = &cobra.Command{
-	Use:   "create",
-	Short: "create tasklist",
-	Long:  `Create tasklist for the currently signed in account`,
+var addListcmd = &cobra.Command{
+	Use:   "add",
+	Short: "add tasklist",
+	Long:  `add tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := getService()
+		srv := api.GetService()
 		if title == "" {
 			utils.Warn("%s\n", "Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
 			return
@@ -81,7 +71,7 @@ var removeListCmd = &cobra.Command{
 	Short: "remove tasklist",
 	Long:  `Remove a tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := getService()
+		srv := api.GetService()
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			utils.ErrorP("Error %v", err)
@@ -118,7 +108,7 @@ var updateTitleCmd = &cobra.Command{
 	Short: "update tasklist title",
 	Long:  `Update tasklist title for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := getService()
+		srv := api.GetService()
 		if title == "" {
 			utils.Warn("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists update -t <TITLE>\ngtasks tasklists update --title <TITLE>\n")
 			return
@@ -157,8 +147,8 @@ var updateTitleCmd = &cobra.Command{
 var title string
 
 func init() {
-	createlistsCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
+	addListcmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
 	updateTitleCmd.Flags().StringVarP(&title, "title", "t", "", "title of task list (required)")
-	tasklistsCmd.AddCommand(showlistsCmd, createlistsCmd, removeListCmd, updateTitleCmd)
+	tasklistsCmd.AddCommand(showlistsCmd, addListcmd, removeListCmd, updateTitleCmd)
 	rootCmd.AddCommand(tasklistsCmd)
 }

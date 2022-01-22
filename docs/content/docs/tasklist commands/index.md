@@ -1,12 +1,14 @@
 ---
-title: 'Tasklist commands'
+title: "Tasklist commands"
 draft: false
 weight: 3
 summary: View and create tasklists for currently signed-in account.
 ---
 
 ## Help command
-* to view inline help for all the commands
+
+- to view inline help for all the commands
+
 ```
 ❯ gtasks tasklists --help
 
@@ -39,21 +41,27 @@ Use "gtasks tasklists [command] --help" for more information about a command.
 ```
 
 ## Create Tasklist
-Examples:
-```
-❯ gtasks tasklists create --title "some title"
 
-❯ gtasks tasklists create -t "some title"
+Examples:
+
+```
+❯ gtasks tasklists add --title "some title"
+
+❯ gtasks tasklists add -t "some title"
 ```
 
 ## View all Tasklists
+
 Example:
+
 ```
 ❯ gtasks tasklists view
 ```
 
 ## Update a tasklist title
+
 Examples:
+
 ```
 ❯ gtasks tasklists update --title "some title"
 
@@ -61,15 +69,17 @@ Examples:
 ```
 
 ## Delete a tasklist
+
 Examples:
+
 ```
 ❯ gtasks tasklists rm
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select Tasklist: 
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Tasklist:
   ▸ VIT
     Daily todo
     personal projects
     To watch
 ↓   DSC VIT
- 
+
 ```

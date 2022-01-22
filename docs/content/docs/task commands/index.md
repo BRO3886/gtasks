@@ -1,19 +1,21 @@
 ---
-title: 'Task commands'
+title: "Task commands"
 draft: false
 weight: 4
 summary: View, create, and delete tasks in a tasklist
 ---
 
 ## Help command
-* to view inline help for all the commands
+
+- to view inline help for all the commands
+
 ```
 ❯ gtasks tasks help
 
         View, create, list and delete tasks in a tasklist
         for the currently signed in account.
         Usage:
-        [WITH LIST FLAG] 
+        [WITH LIST FLAG]
         gtasks tasks -l "<task-list name>" view|add|rm|done
 
         [WITHOUT LIST FLAG]
@@ -37,18 +39,22 @@ Use "gtasks tasks [command] --help" for more information about a command.
 ```
 
 ## Add Task
-* First select the tasklist
+
+- First select the tasklist
+
 ```
 ❯ gtasks tasks add
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select Tasklist: 
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Tasklist:
   ▸ DSC VIT
     Daily todo
     Life
     Placement todo
 ↓   To watch
 ```
-* Then add task
+
+- Then add task
+
 ```
 ❯ gtasks tasks add
 ✔ DSC VIT
@@ -57,24 +63,30 @@ Title: testing
 Note: testing
 Due Date: 12 July 2021
 ```
-* For a shorthand syntax use:
+
+- For a shorthand syntax use:
+
 ```
 gtasks tasks add -l "DSC VIT" --title <some title> [--note <some note> | --due <some due date>]
 ```
 
 ## View all tasks in a tasklist
-* First select tasklist
+
+- First select tasklist
+
 ```
 ❯ gtasks tasks view
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select Tasklist: 
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Tasklist:
   ▸ DSC VIT
     Daily todo
     Life
     Placement todo
 ↓   To watch
 ```
-* Then you'll be able to see tasks in a tabular format
+
+- Then you'll be able to see tasks in a tabular format
+
 ```
 ❯ gtasks tasks view
 ✔ DSC VIT
@@ -92,13 +104,17 @@ Tasks in DSC VIT:
 |  6 | Keats ios            | Check up on the apple dev      | ✖      | 08 July 2021 |
 |    |                      | account status - Swamita       |        |              |
 ```
-* To include completed tasks:
+
+- To include completed tasks:
+
 ```
 ❯ gtasks tasks view --include-completed
 
 ❯ gtasks tasks -l "DSC VIT" view -i
 ```
+
 Example:
+
 ```
 ❯ gtasks tasks -l "DSC VIT" view -i
 Tasks in DSC VIT:
@@ -122,28 +138,42 @@ Tasks in DSC VIT:
 | 11 | testing                  | testing 1 2 3                  | ✔      | No Due Date      |
 | 12 | abdcd                    | ahfje                          | ✔      | 10 July 2021     |
 ```
-* To show completed tasks:
+
+- To show completed tasks:
+
 ```
 ❯ gtasks tasks view --completed
 
 ❯ gtasks tasks -l "DSC VIT" view --completed
 ```
 
+- To change sort order (due date, title, position, defeault=position)
+
+```
+❯ gtasks tasks view --sort due
+
+❯ gtasks tasks -l "DSC VIT" view --sort title
+```
+
 ## Mark task as done
-* With prompt:
+
+- With prompt:
+
 ```
 ❯ gtasks tasks done
 ✔ DSC VIT
 Tasks in DSC VIT:
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select Task: 
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Task:
   ▸ testing
     HopeHouse
     Vitty App Publishing
     Cadence
 ↓   Keats android
 ```
-* For a shorter syntax:
+
+- For a shorter syntax:
+
 ```
 ❯ gtasks tasks view -l "DSC VIT"
 Tasks in DSC VIT:
@@ -161,24 +191,28 @@ Tasks in DSC VIT:
 |    |                      | account status - Swamita       |        |              |
 
 ❯ gtasks tasks done -l "DSC VIT" 1
-Marked as complete: testing 
+Marked as complete: testing
 ```
 
 ## Delete a task
-* With prompt:
+
+- With prompt:
+
 ```
 ❯ gtasks tasks rm
 ✔ DSC VIT
 Tasks in DSC VIT:
-Use the arrow keys to navigate: ↓ ↑ → ← 
-? Select Task: 
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Task:
   ▸ testing
     HopeHouse
     Vitty App Publishing
     Cadence
 ↓   Keats android
 ```
-* For a shorter syntax:
+
+- For a shorter syntax:
+
 ```
 ❯ gtasks tasks view -l "DSC VIT"
 Tasks in DSC VIT:
@@ -196,5 +230,5 @@ Tasks in DSC VIT:
 |    |                      | account status - Swamita       |        |              |
 
 ❯ gtasks tasks rm -l "DSC VIT" 1
-Deleted: testing 
+Deleted: testing
 ```
