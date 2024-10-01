@@ -25,6 +25,30 @@ or you can download the binary:
 3. Append the absolute path (use `pwd`) of the folder to `PATH`
 4. Execute `gtasks` from anywhere
 
+## Instructions to Run on [Nix](https://nixos.org)
+
+(make sure `nix` is installed in your system and nix-command, flakes enabled)
+
+```bash
+nix run "github:BRO3886/gtasks"
+```
+
+Installing in nix config
+
+```nix
+  inputs = {
+
+    gtasks = {
+      url = "github:BRO3886/gtasks";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+```
+
+```nix
+  environment.systemPackages = [ inputs.gtasks.packages.${pkgs.system}.default ];
+```
+
 ## Instructions to Run and Build from Source:
 
 - Pre-requisites

@@ -4,5 +4,5 @@ google-tasks-cli
 gtasks
 gtasks.exe
 bin/*
-
+result
 dist/
