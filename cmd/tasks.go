@@ -45,7 +45,11 @@ var viewTasksCmd = &cobra.Command{
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		tList := getTaskLists(srv)
 
 		utils.Print("Tasks in %s:\n", tList.Title)
@@ -101,7 +105,11 @@ var createTaskCmd = &cobra.Command{
 	tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		tList := getTaskLists(srv)
 		utils.Warn("Creating task in %s\n", tList.Title)
 
@@ -144,7 +152,7 @@ var createTaskCmd = &cobra.Command{
 
 		task := &tasks.Task{Title: title, Notes: notes, Due: dateString}
 
-		_, err := api.CreateTask(srv, task, tList.Id)
+		_, err = api.CreateTask(srv, task, tList.Id)
 		if err != nil {
 			utils.ErrorStyle.Printf("Unable to create task: %v", err)
 			return
@@ -161,7 +169,11 @@ var markCompletedCmd = &cobra.Command{
 	in a selected tasklist for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		tList := getTaskLists(srv)
 		tID := tList.Id
 
@@ -192,7 +204,11 @@ var deleteTaskCmd = &cobra.Command{
 	for the currently signed in account
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		tList := getTaskLists(srv)
 		tID := tList.Id
 
