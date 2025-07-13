@@ -6,3 +6,8 @@ gtasks.exe
 bin/*
 
 dist/
+
+CLAUDE.md
+tasks/
+specs/
+.env

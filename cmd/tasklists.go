@@ -34,7 +34,11 @@ var showlistsCmd = &cobra.Command{
 	Short: "view tasklists",
 	Long:  `view task lists for the account currently signed in`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			utils.ErrorP("Error: %v\n", err)
@@ -51,7 +55,11 @@ var addListcmd = &cobra.Command{
 	Short: "add tasklist",
 	Long:  `add tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		if title == "" {
 			utils.Warn("%s\n", "Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists create -t <TITLE>\ngtasks tasklists create --title <TITLE>")
 			return
@@ -71,7 +79,11 @@ var removeListCmd = &cobra.Command{
 	Short: "remove tasklist",
 	Long:  `Remove a tasklist for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		list, err := api.GetTaskLists(srv)
 		if err != nil {
 			utils.ErrorP("Error %v", err)
@@ -108,7 +120,11 @@ var updateTitleCmd = &cobra.Command{
 	Short: "update tasklist title",
 	Long:  `Update tasklist title for the currently signed in account`,
 	Run: func(cmd *cobra.Command, args []string) {
-		srv := api.GetService()
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
 		if title == "" {
 			utils.Warn("Title should not be empty. Use -t for title.\nExamples:\ngtasks tasklists update -t <TITLE>\ngtasks tasklists update --title <TITLE>\n")
 			return

@@ -20,38 +20,82 @@ go install github.com/BRO3886/gtasks@latest
 
 or you can download the binary:
 
-1. Download the binary for your system (check [releases](https://github.com/BRO3886/google-tasks-cli/releases))
+1. Download the binary for your system (check [releases](https://github.com/BRO3886/gtasks/releases))
 2. Move to a particular folder, for eg Documents
 3. Append the absolute path (use `pwd`) of the folder to `PATH`
 4. Execute `gtasks` from anywhere
 
 ## Instructions to Run and Build from Source:
 
-- Pre-requisites
-  - Go
-- Directions to install
+### Prerequisites
+
+- Go 1.24+
+- Google Cloud Console OAuth2 credentials (see Configuration section)
+
+### Setup
+
+1. Clone the repository:
 
 ```bash
-git clone https://github.com/BRO3886/google-tasks-cli
+git clone https://github.com/BRO3886/gtasks
+cd gtasks
 ```
 
-- Directions to execute
-
-(if you're on linux)
+2. Create a `.env` file with your OAuth2 credentials:
 
 ```bash
-make linux
-./bin/linux/gtasks <COMMAND>
+# .env
+GTASKS_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GTASKS_CLIENT_SECRET=your-client-secret
 ```
 
-(if you're on windows)
+### Build Commands
 
 ```bash
-make windows
-./bin/windows/gtasks <COMMAND>
+# Development build (uses .env file)
+make dev
+
+# Build for specific platforms
+make linux    # Linux (amd64 + arm64)
+make windows  # Windows (amd64)
+make mac      # macOS (amd64 + arm64)
+
+# Build for all platforms
+make all
+
+# Create release packages
+make release
 ```
 
-Or, you can check out the pre-compiled binaries under **Releases**
+### Configuration
+
+To use GTasks, you need to set up Google OAuth2 credentials:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable the Google Tasks API
+4. Create OAuth2 credentials:
+
+   - Application type: "Desktop application"
+   - Add authorized redirect URIs:
+     - `http://localhost:8080/callback`
+     - `http://localhost:8081/callback`
+     - `http://localhost:8082/callback`
+     - `http://localhost:9090/callback`
+     - `http://localhost:9091/callback`
+
+5. Set environment variables:
+
+```bash
+export GTASKS_CLIENT_ID="your-client-id.apps.googleusercontent.com"
+export GTASKS_CLIENT_SECRET="your-client-secret"
+```
+
+Or create a `.env` file (for building from source).
+
+### Token Storage
+
+GTasks stores authentication tokens in `~/.gtasks/token.json`. This directory is created automatically on first login.
 
 - Usage
 
