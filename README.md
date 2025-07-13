@@ -12,18 +12,20 @@ Refer to the [docs website](https://gtasks.sidv.dev) to read about available com
 
 ## Instructions to install
 
-(make sure `$HOME/go/bin` is added to `$PATH`
+1. Download the binary for your system (check [releases](https://github.com/BRO3886/gtasks/releases))
+2. Move to a particular folder, for eg Documents
+3. Append the absolute path (use `pwd`) of the folder to `PATH`
+4. Execute `gtasks` from anywhere
+
+## Instructions to install using go install
+
+> Not working yet. Will be fixed soon.
 
 ```bash
 go install github.com/BRO3886/gtasks@latest
 ```
 
-or you can download the binary:
 
-1. Download the binary for your system (check [releases](https://github.com/BRO3886/gtasks/releases))
-2. Move to a particular folder, for eg Documents
-3. Append the absolute path (use `pwd`) of the folder to `PATH`
-4. Execute `gtasks` from anywhere
 
 ## Instructions to Run and Build from Source:
 
