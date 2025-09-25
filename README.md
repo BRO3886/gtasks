@@ -19,8 +19,7 @@ Refer to the [docs website](https://gtasks.sidv.dev) to read about available com
 
 ## Instructions to install using go install
 
-> [!WARNING]
-> Installing via `go install` is currently not working. Will be fixed soon.
+> Not working yet. Will be fixed soon.
 
 ```bash
 go install github.com/BRO3886/gtasks@latest
@@ -79,7 +78,7 @@ To use GTasks, you need to set up Google OAuth2 credentials:
 3. Enable the Google Tasks API
 4. Create OAuth2 credentials:
 
-   - Application type: "Desktop application"
+   - Application type: "Web application"
    - Add authorized redirect URIs:
      - `http://localhost:8080/callback`
      - `http://localhost:8081/callback`
