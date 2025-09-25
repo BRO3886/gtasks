@@ -19,7 +19,8 @@ Refer to the [docs website](https://gtasks.sidv.dev) to read about available com
 
 ## Instructions to install using go install
 
-> Not working yet. Will be fixed soon.
+> [!WARNING]
+> Installing via `go install` is currently not working. Will be fixed soon.
 
 ```bash
 go install github.com/BRO3886/gtasks@latest
