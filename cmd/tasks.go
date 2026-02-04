@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"bufio"
+	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"os"
 	"runtime"
@@ -42,7 +44,8 @@ var viewTasksCmd = &cobra.Command{
 	Short: "View tasks in a tasklist",
 	Long: `
 	Use this command to view tasks in a selected 
-	tasklist for the currently signed in account
+	tasklist for the currently signed in account.
+	You can control output with --format: table (default), json, csv.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
 		srv, err := api.GetService()
@@ -52,48 +55,30 @@ var viewTasksCmd = &cobra.Command{
 		}
 		tList := getTaskLists(srv)
 
-		utils.Print("Tasks in %s:\n", tList.Title)
-
-		tasks, err := api.GetTasks(srv, tList.Id, viewTasksFlags.includeCompleted || viewTasksFlags.onlyCompleted)
+		taskItems, err := api.GetTasks(srv, tList.Id, viewTasksFlags.includeCompleted || viewTasksFlags.onlyCompleted)
 		if err != nil {
 			color.Red(err.Error())
 			return
 		}
 
-		utils.Sort(tasks, viewTasksFlags.sort)
+		utils.Sort(taskItems, viewTasksFlags.sort)
 
-		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"No", "Title", "Description", "Status", "Due"})
-		table.SetAlignment(tablewriter.ALIGN_LEFT)
-		table.SetBorder(false)
-		table.SetCenterSeparator("|")
-		table.SetRowLine(false)
-		table.SetRowSeparator("-")
-
-		for ind, task := range tasks {
+		var filteredTasks []*tasks.Task
+		for _, task := range taskItems {
 			if viewTasksFlags.onlyCompleted && task.Status == "needsAction" {
 				continue
 			}
-
-			row := []string{fmt.Sprintf("%d", ind+1), task.Title, task.Notes}
-
-			if task.Status == "needsAction" {
-				row = append(row, "✖")
-			} else if task.Status == "completed" {
-				row = append(row, "✔")
-			}
-
-			due, err := time.Parse(time.RFC3339, task.Due)
-			if err != nil {
-				row = append(row, "-")
-			} else {
-				row = append(row, due.Local().Format("02 January 2006"))
-			}
-
-			table.Append(row)
+			filteredTasks = append(filteredTasks, task)
 		}
 
-		table.Render()
+		switch viewTasksFlags.format {
+		case "json":
+			outputJSON(filteredTasks)
+		case "csv":
+			outputCSV(filteredTasks)
+		default:
+			outputTable(filteredTasks, tList.Title)
+		}
 	},
 }
 
@@ -310,6 +295,7 @@ var (
 		includeCompleted bool
 		onlyCompleted    bool
 		sort             string
+		format           string
 	}
 	taskListFlag string
 	addTaskFlags struct {
@@ -326,9 +312,111 @@ func init() {
 	viewTasksCmd.Flags().BoolVarP(&viewTasksFlags.includeCompleted, "include-completed", "i", false, "use this flag to include completed tasks")
 	viewTasksCmd.Flags().BoolVar(&viewTasksFlags.onlyCompleted, "completed", false, "use this flag to only show completed tasks")
 	viewTasksCmd.Flags().StringVar(&viewTasksFlags.sort, "sort", "position", "use this flag to sort by [due,title,position]")
+	viewTasksCmd.Flags().StringVar(&viewTasksFlags.format, "format", "table", "output format: table, json, csv")
 	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
 	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd, infoTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
+}
+
+type TaskOutput struct {
+	Number      int    `json:"number"`
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	Status      string `json:"status"`
+	Due         string `json:"due,omitempty"`
+}
+
+func outputTable(tasks []*tasks.Task, listTitle string) {
+	utils.Print("Tasks in %s:\n", listTitle)
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"No", "Title", "Description", "Status", "Due"})
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetBorder(false)
+	table.SetCenterSeparator("|")
+	table.SetRowLine(false)
+	table.SetRowSeparator("-")
+
+	for ind, task := range tasks {
+		row := []string{
+			fmt.Sprintf("%d", ind+1),
+			task.Title,
+			task.Notes,
+			statusLabel(task.Status),
+			formatDueHuman(task.Due),
+		}
+		table.Append(row)
+	}
+
+	table.Render()
+}
+
+func outputJSON(tasks []*tasks.Task) {
+	var output []TaskOutput
+
+	for ind, task := range tasks {
+		output = append(output, TaskOutput{
+			Number:      ind + 1,
+			Title:       task.Title,
+			Description: task.Notes,
+			Status:      statusLabel(task.Status),
+			Due:         formatDueISO(task.Due),
+		})
+	}
+
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "  ")
+	_ = encoder.Encode(output)
+}
+
+func outputCSV(tasks []*tasks.Task) {
+	writer := csv.NewWriter(os.Stdout)
+	defer writer.Flush()
+
+	_ = writer.Write([]string{"No", "Title", "Description", "Status", "Due"})
+
+	for ind, task := range tasks {
+		_ = writer.Write([]string{
+			fmt.Sprintf("%d", ind+1),
+			task.Title,
+			task.Notes,
+			statusLabel(task.Status),
+			formatDueHuman(task.Due),
+		})
+	}
+}
+
+func statusLabel(status string) string {
+	switch status {
+	case "completed":
+		return "completed"
+	case "needsAction":
+		return "pending"
+	default:
+		return status
+	}
+}
+
+func formatDueHuman(due string) string {
+	if due == "" {
+		return "-"
+	}
+	parsed, err := time.Parse(time.RFC3339, due)
+	if err != nil {
+		return "-"
+	}
+	return parsed.Local().Format("02 January 2006")
+}
+
+func formatDueISO(due string) string {
+	if due == "" {
+		return ""
+	}
+	parsed, err := time.Parse(time.RFC3339, due)
+	if err != nil {
+		return ""
+	}
+	return parsed.Local().Format("2006-01-02")
 }
 
 func getInput(reader *bufio.Reader) string {

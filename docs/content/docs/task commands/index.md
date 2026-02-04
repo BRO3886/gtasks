@@ -106,6 +106,30 @@ Tasks in DSC VIT:
 |    |                      | account status - Swamita       |        |              |
 ```
 
+- Output formats (table, json, csv)
+
+Use `--format` to change the output format. The default is `table`.
+
+```
+❯ gtasks tasks view --format table
+
+❯ gtasks tasks view --format json
+
+❯ gtasks tasks view --format csv
+```
+
+JSON example (pipe to `jq`):
+
+```
+❯ gtasks tasks view -l "DSC VIT" --format json | jq '.[] | {title, status, due}'
+```
+
+CSV example (redirect to a file):
+
+```
+❯ gtasks tasks view -l "DSC VIT" --format csv > tasks.csv
+```
+
 - To include completed tasks:
 
 ```
@@ -236,6 +260,7 @@ View in Google Tasks: https://tasks.google.com/...
 ```
 
 The info command is particularly useful for viewing:
+
 - Full task notes (not truncated)
 - Links/URLs attached to the task
 - WebViewLink to open the task in Google Tasks web interface
