@@ -2,8 +2,8 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/BRO3886/gtasks/internal/utils"
 	"google.golang.org/api/tasks/v1"
 )
 
@@ -18,25 +18,43 @@ func CreateTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks
 
 // GetTasks used to retreive tasks
 func GetTasks(srv *tasks.Service, id string, includeCompleted bool) ([]*tasks.Task, error) {
-	r, err := srv.Tasks.List(id).ShowHidden(includeCompleted).Do()
-	if err != nil {
-		utils.ErrorP("Unable to retrieve tasks. %v", err)
+	var allTasks []*tasks.Task
+	pageToken := ""
+
+	for {
+		call := srv.Tasks.List(id).ShowHidden(includeCompleted).MaxResults(100)
+		if pageToken != "" {
+			call = call.PageToken(pageToken)
+		}
+
+		r, err := call.Do()
+		if err != nil {
+			return nil, fmt.Errorf("unable to retrieve tasks: %v", err)
+		}
+
+		allTasks = append(allTasks, r.Items...)
+
+		if r.NextPageToken == "" {
+			break
+		}
+		pageToken = r.NextPageToken
 	}
-	if len(r.Items) == 0 {
+
+	if len(allTasks) == 0 {
 		return nil, errors.New("no Tasks found")
 	}
 
 	if includeCompleted {
-		return r.Items, nil
-	} else {
-		var list []*tasks.Task
-		for _, task := range r.Items {
-			if task.Status != "completed" {
-				list = append(list, task)
-			}
-		}
-		return list, nil
+		return allTasks, nil
 	}
+
+	var list []*tasks.Task
+	for _, task := range allTasks {
+		if task.Status != "completed" {
+			list = append(list, task)
+		}
+	}
+	return list, nil
 }
 
 func MakeMap(taskList []*tasks.Task) map[string]tasks.Task {
