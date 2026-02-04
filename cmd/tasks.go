@@ -28,11 +28,11 @@ var tasksCmd = &cobra.Command{
 	View, create, list and delete tasks in a tasklist
 	for the currently signed in account.
 	Usage:
-	[WITH LIST FLAG] 
-	gtasks tasks -l "<task-list name>" view|add|rm|done
-	
+	[WITH LIST FLAG]
+	gtasks tasks -l "<task-list name>" view|add|rm|done|info
+
 	[WITHOUT LIST FLAG]
-	gtasks tasks view|add|rm|done
+	gtasks tasks view|add|rm|done|info
 	* You would be prompted to select a tasklist
 	`,
 }
@@ -231,6 +231,80 @@ var deleteTaskCmd = &cobra.Command{
 	},
 }
 
+var infoTaskCmd = &cobra.Command{
+	Use:   "info [task-number]",
+	Short: "View detailed information about a task",
+	Long: `
+	Use this command to view detailed information about a task
+	including links, notes, and other metadata.
+	`,
+	Run: func(cmd *cobra.Command, args []string) {
+		srv, err := api.GetService()
+		if err != nil {
+			utils.ErrorP("Failed to get service: %v\n", err)
+			return
+		}
+		tList := getTaskLists(srv)
+		tID := tList.Id
+
+		tasks, err := api.GetTasks(srv, tID, true)
+		if err != nil {
+			color.Red(err.Error())
+			return
+		}
+
+		ind := getTaskIndex(args, tasks, tList.Title)
+		t := tasks[ind]
+
+		// Display detailed task information
+		utils.Print("\n")
+		utils.Print("Task: %s\n", t.Title)
+
+		// Status
+		status := "Needs action"
+		if t.Status == "completed" {
+			status = "Completed"
+		}
+		utils.Print("Status: %s\n", status)
+
+		// Due date
+		if t.Due != "" {
+			due, err := time.Parse(time.RFC3339, t.Due)
+			if err == nil {
+				utils.Print("Due: %s\n", due.Local().Format("02 January 2006"))
+			} else {
+				utils.Print("Due: Not set\n")
+			}
+		} else {
+			utils.Print("Due: Not set\n")
+		}
+
+		// Notes
+		if t.Notes != "" {
+			utils.Print("Notes: %s\n", t.Notes)
+		} else {
+			utils.Print("Notes: None\n")
+		}
+
+		// Links
+		utils.Print("\n")
+		if len(t.Links) > 0 {
+			utils.Print("Links:\n")
+			for _, link := range t.Links {
+				utils.Print("  - %s\n", link.Link)
+			}
+		} else {
+			utils.Print("Links: No links\n")
+		}
+
+		// WebViewLink
+		if t.WebViewLink != "" {
+			utils.Print("\nView in Google Tasks: %s\n", t.WebViewLink)
+		}
+		utils.Print("\n")
+	},
+}
+
 var (
 	viewTasksFlags struct {
 		includeCompleted bool
@@ -253,7 +327,7 @@ func init() {
 	viewTasksCmd.Flags().BoolVar(&viewTasksFlags.onlyCompleted, "completed", false, "use this flag to only show completed tasks")
 	viewTasksCmd.Flags().StringVar(&viewTasksFlags.sort, "sort", "position", "use this flag to sort by [due,title,position]")
 	tasksCmd.PersistentFlags().StringVarP(&taskListFlag, "tasklist", "l", "", "use this flag to specify a tasklist")
-	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd)
+	tasksCmd.AddCommand(viewTasksCmd, createTaskCmd, markCompletedCmd, deleteTaskCmd, infoTaskCmd)
 	rootCmd.AddCommand(tasksCmd)
 }
 
