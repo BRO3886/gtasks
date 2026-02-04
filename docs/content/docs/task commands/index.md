@@ -16,10 +16,10 @@ summary: View, create, and delete tasks in a tasklist
         for the currently signed in account.
         Usage:
         [WITH LIST FLAG]
-        gtasks tasks -l "<task-list name>" view|add|rm|done
+        gtasks tasks -l "<task-list name>" view|add|rm|done|info
 
         [WITHOUT LIST FLAG]
-        gtasks tasks view|add|rm|done
+        gtasks tasks view|add|rm|done|info
         * You would be prompted to select a tasklist
 
 Usage:
@@ -28,6 +28,7 @@ Usage:
 Available Commands:
   add         Add task in a tasklist
   done        Mark tasks as done
+  info        View detailed information about a task
   rm          Delete a task in a tasklist
   view        View tasks in a tasklist
 
@@ -193,6 +194,53 @@ Tasks in DSC VIT:
 ❯ gtasks tasks done -l "DSC VIT" 1
 Marked as complete: testing
 ```
+
+## View detailed task information
+
+The `info` command displays detailed information about a task, including links/URLs that may have been shared to Google Tasks (e.g., from Android's "Share With..." feature).
+
+- With prompt:
+
+```
+❯ gtasks tasks info
+✔ DSC VIT
+Tasks in DSC VIT:
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Task:
+  ▸ testing
+    HopeHouse
+    Vitty App Publishing
+```
+
+- For a shorter syntax using task number:
+
+```
+❯ gtasks tasks view -l "DSC VIT"
+Tasks in DSC VIT:
+| NO |        TITLE         |          DESCRIPTION           | STATUS |     DUE      |
+|----|----------------------|--------------------------------|--------|--------------|
+|  1 | testing              | testing                        | ✖      | 12 July 2021 |
+|  2 | HopeHouse            | Checkout the app. Maybe        | ✖      | 06 July 2021 |
+
+❯ gtasks tasks info -l "DSC VIT" 1
+
+Task: testing
+Status: Needs action
+Due: 12 July 2021
+Notes: testing
+
+Links:
+  - https://example.com/some-link
+
+View in Google Tasks: https://tasks.google.com/...
+```
+
+The info command is particularly useful for viewing:
+- Full task notes (not truncated)
+- Links/URLs attached to the task
+- WebViewLink to open the task in Google Tasks web interface
+- Complete due date information
+- Task completion status
 
 ## Delete a task
 

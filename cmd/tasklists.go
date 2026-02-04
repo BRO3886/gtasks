@@ -20,8 +20,8 @@ var tasklistsCmd = &cobra.Command{
 	gtasks tasklists view
 
 	Create tasklist:
-	gtasks tasklists create -t <TITLE>
-	gtasks tasklists create --title <TITLE>
+	gtasks tasklists add -t <TITLE>
+	gtasks tasklists add --title <TITLE>
 
 	Remove tasklist
 	gtasks tasklists rm

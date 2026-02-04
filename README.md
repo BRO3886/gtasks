@@ -210,6 +210,12 @@ gtasks tasks add
 gtasks tasks done
 ```
 
+- View detailed task information (including links/URLs)
+
+```bash
+gtasks tasks info [task-number]
+```
+
 - Deleting a task
 
 ```bash

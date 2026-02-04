@@ -18,8 +18,8 @@ summary: View and create tasklists for currently signed-in account.
         gtasks tasklists view
 
         Create tasklist:
-        gtasks tasklists create -t <TITLE>
-        gtasks tasklists create --title <TITLE>
+        gtasks tasklists add -t <TITLE>
+        gtasks tasklists add --title <TITLE>
 
         Remove tasklist
         gtasks tasklists rm
@@ -29,7 +29,7 @@ Usage:
   gtasks tasklists [command]
 
 Available Commands:
-  create      create tasklist
+  add         add tasklist
   rm          remove tasklist
   update      update tasklist title
   view        view tasklists
