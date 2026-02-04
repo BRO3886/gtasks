@@ -10,6 +10,22 @@
 
 Refer to the [docs website](https://gtasks.sidv.dev) to read about available commands.
 
+## AI Agent Skills
+
+GTasks includes [Agent Skills](https://agentskills.io) support for AI agents like Claude Code. The skills provide comprehensive instructions for AI agents to effectively use gtasks.
+
+📁 **Location:** [`skills/gtasks-cli/`](skills/gtasks-cli/)
+
+**Features:**
+- Complete command reference with examples
+- Cross-platform support (macOS, Linux, Windows)
+- Helper scripts for daily reports, backups, and imports
+- Quick reference guide and advanced usage patterns
+
+**For AI Users:** Load the skill with Claude Code or compatible AI agents to get intelligent assistance with Google Tasks management.
+
+**Learn more:** See [`skills/README.md`](skills/README.md) for details.
+
 ## Instructions to install
 
 1. Download the binary for your system (check [releases](https://github.com/BRO3886/gtasks/releases))
