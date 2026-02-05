@@ -14,7 +14,7 @@ Then follow the dev pipeline:
 1. **Implement the feature** following existing code patterns
 2. **Build and test**:
    - Credentials are in `.env` (`GTASKS_CLIENT_ID` and `GTASKS_CLIENT_SECRET`)
-   - Run `make dev` to build with embedded credentials from `.env`
+   - Run `make dev EMBED_CREDS=1` to build with embedded credentials from `.env`
    - Test with `./gtasks <command>`
 3. **Update docs/** if the feature adds/changes commands (Hugo site in `docs/content/`)
 4. **Update README.md** if needed for user-facing changes

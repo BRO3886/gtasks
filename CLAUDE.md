@@ -105,7 +105,7 @@ gtasks
 When implementing a new feature, follow this workflow:
 
 1. **Implement feature** - Add the feature code following existing patterns
-2. **Build and test** - Run `make dev` to build with credentials from `.env`, then test with `./gtasks <command>`
+2. **Build and test** - Run `make dev EMBED_CREDS=1` to build with credentials from `.env`, then test with `./gtasks <command>`
 3. **Update docs** - Update `docs/` Hugo site if the feature adds/changes commands
 4. **Update README** - Update `README.md` if needed for user-facing changes
 5. **Commit** - Create a commit with a clear message describing the change
@@ -113,7 +113,7 @@ When implementing a new feature, follow this workflow:
 
 ### Testing Commands
 
-- Build for dev: `make dev` (creates `./gtasks` binary with embedded credentials)
+- Build for dev: `make dev EMBED_CREDS=1` (creates `./gtasks` binary with embedded credentials)
 - Test authentication: `./gtasks login`
 - Test task operations: `./gtasks tasks view`
 
