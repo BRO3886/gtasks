@@ -32,12 +32,18 @@ func Login() error {
 		return fmt.Errorf("invalid OAuth2 config: %v", err)
 	}
 
-	// Check if already logged in
+	// Check if already logged in with a valid token
 	folderPath := config.GetInstallLocation()
 	tokFile := folderPath + "/token.json"
-	_, err = tokenFromFile(tokFile)
+	existingToken, err := tokenFromFile(tokFile)
 	if err == nil {
-		return fmt.Errorf("already logged in")
+		// Token file exists, check if it's still valid
+		if isTokenValid(oauthConfig, existingToken) {
+			return fmt.Errorf("already logged in (token is valid)")
+		}
+		// Token exists but is invalid/expired, remove it and proceed
+		utils.Info("Existing token is expired or invalid, re-authenticating...\n")
+		os.Remove(tokFile)
 	}
 
 	// Perform PKCE + localhost authentication
@@ -52,6 +58,22 @@ func Login() error {
 	utils.Info("✓ Credentials saved to %s\n", tokFile)
 
 	return nil
+}
+
+// isTokenValid checks if a token is still valid by making a test API call
+func isTokenValid(oauthConfig *oauth2.Config, token *oauth2.Token) bool {
+	// Create a client with the token
+	client := oauthConfig.Client(context.Background(), token)
+
+	// Try to create a Tasks service and make a simple API call
+	srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
+	if err != nil {
+		return false
+	}
+
+	// Try to list task lists (minimal API call to verify token)
+	_, err = srv.Tasklists.List().MaxResults(1).Do()
+	return err == nil
 }
 
 // Logout removes stored authentication token
