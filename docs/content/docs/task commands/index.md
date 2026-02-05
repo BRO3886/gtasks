@@ -16,10 +16,10 @@ summary: View, create, and delete tasks in a tasklist
         for the currently signed in account.
         Usage:
         [WITH LIST FLAG]
-        gtasks tasks -l "<task-list name>" view|add|rm|done|info
+        gtasks tasks -l "<task-list name>" view|add|rm|done|undo|clear|info|update
 
         [WITHOUT LIST FLAG]
-        gtasks tasks view|add|rm|done|info
+        gtasks tasks view|add|rm|done|undo|clear|info|update
         * You would be prompted to select a tasklist
 
 Usage:
@@ -27,9 +27,12 @@ Usage:
 
 Available Commands:
   add         Add task in a tasklist
+  clear       Hide all completed tasks from the list
   done        Mark tasks as done
   info        View detailed information about a task
   rm          Delete a task in a tasklist
+  undo        Mark a completed task as incomplete
+  update      Update an existing task
   view        View tasks in a tasklist
 
 Flags:
@@ -70,6 +73,39 @@ Due Date: 12 July 2021
 ```
 gtasks tasks add -l "DSC VIT" --title <some title> [--note <some note> | --due <some due date>]
 ```
+
+### Recurring Tasks
+
+Create multiple tasks with a repeating schedule using the `--repeat` flag:
+
+```
+❯ gtasks tasks add -l "DSC VIT" -t "Daily standup" -d "2025-02-10" --repeat daily --repeat-count 5
+Creating task in DSC VIT
+Creating 5 recurring tasks...
+Created 5 tasks
+```
+
+This creates 5 tasks for Feb 10, 11, 12, 13, 14.
+
+Available repeat patterns:
+- `daily` or `day`
+- `weekly` or `week`
+- `monthly` or `month`
+- `yearly` or `year`
+
+You can use `--repeat-count` to specify the number of occurrences:
+
+```
+gtasks tasks add -t "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-count 4
+```
+
+Or use `--repeat-until` to specify an end date:
+
+```
+gtasks tasks add -t "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-until "2025-03-10"
+```
+
+Both can be combined - the command stops at whichever limit is reached first.
 
 ## View all tasks in a tasklist
 
@@ -180,6 +216,14 @@ Tasks in DSC VIT:
 ❯ gtasks tasks -l "DSC VIT" view --sort title
 ```
 
+- To limit the number of results:
+
+```
+❯ gtasks tasks view --max 5
+
+❯ gtasks tasks -l "DSC VIT" view --max 10
+```
+
 ## Mark task as done
 
 - With prompt:
@@ -219,9 +263,58 @@ Tasks in DSC VIT:
 Marked as complete: testing
 ```
 
+## Undo a completed task
+
+Mark a completed task as incomplete again.
+
+- With prompt:
+
+```
+❯ gtasks tasks undo
+✔ DSC VIT
+Tasks in DSC VIT:
+Use the arrow keys to navigate: ↓ ↑ → ←
+? Select Task:
+  ▸ testing (completed)
+    HopeHouse (completed)
+```
+
+- For a shorter syntax (first view completed tasks to get the number):
+
+```
+❯ gtasks tasks view -l "DSC VIT" --include-completed
+Tasks in DSC VIT:
+| NO |        TITLE         | STATUS    |
+|----|----------------------|-----------|
+|  1 | testing              | completed |
+|  2 | HopeHouse            | completed |
+
+❯ gtasks tasks undo -l "DSC VIT" 1
+Marked as incomplete: testing
+```
+
+## Clear completed tasks
+
+Hide all completed tasks from the list. This marks completed tasks as hidden so they won't be returned by the API (primarily affects tasks completed via the CLI).
+
+```
+❯ gtasks tasks clear -l "DSC VIT"
+✔ Clear all completed tasks from 'DSC VIT'? [y/N]: y
+Cleared completed tasks from DSC VIT
+```
+
+- Use `--force` or `-f` to skip the confirmation prompt:
+
+```
+❯ gtasks tasks clear -l "DSC VIT" --force
+Cleared completed tasks from DSC VIT
+```
+
 ## View detailed task information
 
 The `info` command displays detailed information about a task, including links/URLs that may have been shared to Google Tasks (e.g., from Android's "Share With..." feature).
+
+By default, `info` only considers pending tasks (matching `view` behavior). Use `-i` to include completed tasks.
 
 - With prompt:
 
@@ -259,6 +352,13 @@ Links:
 View in Google Tasks: https://tasks.google.com/...
 ```
 
+- To get info on a completed task, use `-i` (must match how you viewed the list):
+
+```
+❯ gtasks tasks view -l "DSC VIT" -i
+❯ gtasks tasks info -l "DSC VIT" 3 -i
+```
+
 The info command is particularly useful for viewing:
 
 - Full task notes (not truncated)
@@ -266,6 +366,46 @@ The info command is particularly useful for viewing:
 - WebViewLink to open the task in Google Tasks web interface
 - Complete due date information
 - Task completion status
+
+## Update a task
+
+Update an existing task's title, note, or due date.
+
+### Interactive mode
+
+When no flags are provided, you'll be prompted for each field with the current value displayed. Press Enter to keep the current value, or type a new value.
+
+```
+❯ gtasks tasks update 1
+Updating task: testing
+
+Title [testing]: new title
+Note [testing notes]: 
+Due [12 July 2021]: 
+
+Updated: new title
+```
+
+### Flag mode
+
+Use flags to update specific fields without prompts:
+
+```
+❯ gtasks tasks update 1 --title "New title"
+Updating task: testing
+
+Updated: New title
+
+❯ gtasks tasks update 1 --note "Updated note" --due "tomorrow"
+Updating task: New title
+
+Updated: New title
+```
+
+Available flags:
+- `-t, --title` - New title for the task
+- `-n, --note` - New note for the task  
+- `-d, --due` - New due date for the task
 
 ## Delete a task
 

@@ -7,7 +7,7 @@ bin/*
 
 dist/
 
-CLAUDE.md
 tasks/
 specs/
 .env
+.DS_Store

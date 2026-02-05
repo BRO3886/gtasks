@@ -214,11 +214,29 @@ gtasks tasks view --include-completed
 gtasks tasks view ... --sort [due,title,position, default=position]
 ```
 
+- Limit results
+
+```bash
+gtasks tasks view --max 10  # Show only first 10 tasks
+```
+
 - Adding a task
 
 ```bash
 gtasks tasks add
 ```
+
+- Adding a recurring task
+
+```bash
+# Create 5 daily tasks starting from Feb 10
+gtasks tasks add -t "Standup" -d "2025-02-10" --repeat daily --repeat-count 5
+
+# Create weekly tasks until March 10
+gtasks tasks add -t "Weekly sync" -d "2025-02-10" --repeat weekly --repeat-until "2025-03-10"
+```
+
+Repeat patterns: `daily`, `weekly`, `monthly`, `yearly`
 
 - Mark task as completed
 
@@ -226,10 +244,34 @@ gtasks tasks add
 gtasks tasks done
 ```
 
+- Undo a completed task (mark as incomplete)
+
+```bash
+gtasks tasks undo
+```
+
+- Clear completed tasks (hide from API)
+
+```bash
+gtasks tasks clear
+gtasks tasks clear --force  # Skip confirmation
+```
+
 - View detailed task information (including links/URLs)
 
 ```bash
 gtasks tasks info [task-number]
+```
+
+- Update an existing task
+
+```bash
+# Interactive mode - shows current values and prompts for changes
+gtasks tasks update [task-number]
+
+# Flag mode - update specific fields
+gtasks tasks update 1 --title "New title"
+gtasks tasks update 1 --note "Updated note" --due "tomorrow"
 ```
 
 - Deleting a task

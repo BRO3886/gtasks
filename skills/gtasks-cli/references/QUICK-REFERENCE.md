@@ -227,16 +227,6 @@ No,Title,Description,Status,Due
 4. **JSON for parsing** - Use `--format=json` when processing with jq
 5. **Include completed** - Use `-i` to see full task history
 
-## Helper Scripts
-
-Located in `skills/gtasks-cli/scripts/`:
-
-```bash
-./daily-report.sh              # Generate daily task report
-./backup-tasks.sh              # Backup all tasks to JSON
-./import-tasks.sh "List" file  # Import tasks from file
-```
-
 ## Getting Help
 
 ```bash

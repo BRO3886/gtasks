@@ -16,13 +16,21 @@ func CreateTask(srv *tasks.Service, task *tasks.Task, tasklistID string) (*tasks
 	return r, nil
 }
 
-// GetTasks used to retreive tasks
-func GetTasks(srv *tasks.Service, id string, includeCompleted bool) ([]*tasks.Task, error) {
+// GetTasks used to retreive tasks.
+// If maxResults is 0, fetches all tasks with pagination.
+// If maxResults > 0, limits the number of tasks returned.
+func GetTasks(srv *tasks.Service, id string, includeCompleted bool, maxResults int) ([]*tasks.Task, error) {
 	var allTasks []*tasks.Task
 	pageToken := ""
 
+	// Determine page size for API calls
+	pageSize := int64(100)
+	if maxResults > 0 && maxResults < 100 {
+		pageSize = int64(maxResults)
+	}
+
 	for {
-		call := srv.Tasks.List(id).ShowHidden(includeCompleted).MaxResults(100)
+		call := srv.Tasks.List(id).ShowHidden(includeCompleted).MaxResults(pageSize)
 		if pageToken != "" {
 			call = call.PageToken(pageToken)
 		}
@@ -33,6 +41,12 @@ func GetTasks(srv *tasks.Service, id string, includeCompleted bool) ([]*tasks.Ta
 		}
 
 		allTasks = append(allTasks, r.Items...)
+
+		// Stop if we've reached maxResults limit
+		if maxResults > 0 && len(allTasks) >= maxResults {
+			allTasks = allTasks[:maxResults]
+			break
+		}
 
 		if r.NextPageToken == "" {
 			break
@@ -87,4 +101,10 @@ func UpdateTask(srv *tasks.Service, t *tasks.Task, tListID string) (*tasks.Task,
 func DeleteTask(srv *tasks.Service, id string, tid string) error {
 	err := srv.Tasks.Delete(tid, id).Do()
 	return err
+}
+
+// ClearTasks clears all completed tasks from a task list.
+// Completed tasks are marked as hidden and no longer returned by default.
+func ClearTasks(srv *tasks.Service, tasklistID string) error {
+	return srv.Tasks.Clear(tasklistID).Do()
 }

@@ -17,23 +17,6 @@ while IFS='|' read -r title notes due; do
 done < tasks.txt
 ```
 
-### Daily Task Report
-
-Generate a daily report of pending tasks:
-
-```bash
-#!/bin/bash
-echo "=== Daily Task Report ==="
-echo "Date: $(date)"
-echo
-
-for list in "Work" "Personal" "Shopping"; do
-  echo "## $list"
-  gtasks tasks view -l "$list" --sort=due --format=table
-  echo
-done
-```
-
 ### Task Completion Script
 
 Mark all tasks containing a keyword as complete:
@@ -288,39 +271,6 @@ log() {
 
 log "Starting task sync"
 gtasks tasks view -l "Work" > /dev/null && log "Success" || log "Failed"
-```
-
-## Backup and Restore
-
-### Backup All Tasks
-
-```bash
-#!/bin/bash
-BACKUP_DIR="$HOME/gtasks_backups"
-DATE=$(date +%Y%m%d)
-
-mkdir -p "$BACKUP_DIR/$DATE"
-
-gtasks tasklists view | grep -oP '\[\d+\] \K.*' | while read list; do
-  filename=$(echo "$list" | tr ' ' '_')
-  gtasks tasks view -l "$list" -i --format=json > "$BACKUP_DIR/$DATE/${filename}.json"
-done
-
-echo "Backup completed: $BACKUP_DIR/$DATE"
-```
-
-### Restore Tasks
-
-```bash
-#!/bin/bash
-# Note: This requires manual implementation as gtasks doesn't have bulk import
-# This is a template for how you might structure restoration
-
-BACKUP_FILE="$1"
-
-jq -r '.[] | "\(.title)|\(.description)|\(.due)"' "$BACKUP_FILE" | while IFS='|' read -r title desc due; do
-  gtasks tasks add -l "Restored" -t "$title" -n "$desc" -d "$due"
-done
 ```
 
 ## Testing
