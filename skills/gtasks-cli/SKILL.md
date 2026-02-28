@@ -1,11 +1,20 @@
 ---
 name: gtasks-cli
 description: Manage Google Tasks from the command line - view, create, update, delete tasks and task lists. Use when the user asks to interact with Google Tasks, manage to-do items, create task lists, mark tasks complete, or check their Google Tasks.
+homepage: https://github.com/BRO3886/gtasks
 license: MIT
 compatibility: Requires gtasks CLI tool to be installed and authenticated
 metadata:
   author: BRO3886
   version: "1.0"
+required-env:
+  - name: GTASKS_CLIENT_ID
+    description: Google OAuth2 client ID for the gtasks app
+  - name: GTASKS_CLIENT_SECRET
+    description: Google OAuth2 client secret for the gtasks app
+required-config-paths:
+  - path: ~/.gtasks/token.json
+    description: OAuth2 token stored after successful login; permissions should be 0600
 allowed-tools: Bash(gtasks:*)
 ---
 
@@ -59,20 +68,23 @@ export GTASKS_CLIENT_SECRET="your-client-secret"
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select an existing one
 3. Enable the Google Tasks API
-4. Create OAuth2 credentials (Application type: "Web application")
-5. Add authorized redirect URIs:
+4. Create OAuth2 credentials (Application type: "Desktop app")
+5. Note the authorized redirect URIs that gtasks uses:
    - `http://localhost:8080/callback`
    - `http://localhost:8081/callback`
    - `http://localhost:8082/callback`
    - `http://localhost:9090/callback`
    - `http://localhost:9091/callback`
 
-**For persistent setup**, add these to your shell profile (`~/.bashrc`, `~/.zshrc`, etc.):
+**For persistent setup**, use a secrets manager or a `~/.env` file with restrictive permissions — do not commit these values to version control or add them to shared shell profile files:
 
 ```bash
-echo 'export GTASKS_CLIENT_ID="your-client-id"' >> ~/.bashrc
-echo 'export GTASKS_CLIENT_SECRET="your-client-secret"' >> ~/.bashrc
-source ~/.bashrc
+# Recommended: store in a file with restricted permissions
+echo 'export GTASKS_CLIENT_ID="your-client-id"' >> ~/.gtasks_env
+echo 'export GTASKS_CLIENT_SECRET="your-client-secret"' >> ~/.gtasks_env
+chmod 600 ~/.gtasks_env
+# Source it from your shell profile
+echo 'source ~/.gtasks_env' >> ~/.zshrc
 ```
 
 ### 2. Authentication
@@ -83,7 +95,7 @@ Once environment variables are set, authenticate with Google:
 gtasks login
 ```
 
-This will open a browser for OAuth2 authentication. The token is stored in `~/.gtasks/token.json`.
+This will open a browser for OAuth2 authentication. The token is stored in `~/.gtasks/token.json` with 0600 permissions. Verify with `ls -la ~/.gtasks/token.json`. If you no longer need access, run `gtasks logout` to revoke and delete the token.
 
 ## Core Concepts
 
