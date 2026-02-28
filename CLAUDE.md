@@ -90,7 +90,17 @@ gtasks
 - `make windows` - Build for Windows
 - `make mac` - Build for macOS
 - `make all` - Build for all platforms
-- `make release` - Create GitHub release
+- `make release` - Build release archives
+
+### Release Process
+Steps in order — do not skip or reorder:
+1. `git push` — push all commits to main **first**. Never tag unpushed commits.
+2. `git tag vX.Y.Z` — tag after push so the tag points to a commit already on remote main
+3. `git push origin vX.Y.Z` — push the tag explicitly
+4. `make release` — builds all platform archives
+5. `gh release create vX.Y.Z <archives>`
+
+- **CRITICAL: Push before tag.** Tagging an unpushed commit then running `gh release create` pushes the tag + that commit but leaves `main` behind on remote — release binary is built from code not reachable from main.
 
 ## Development Guidelines
 
