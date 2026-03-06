@@ -795,6 +795,8 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 			utils.ErrorP("%s\n", "incorrect task-list name")
 		}
 
+	} else if len(list) == 1 {
+		index = 0
 	} else {
 		utils.Print("Choose a Tasklist:")
 		var l []string
