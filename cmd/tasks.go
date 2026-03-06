@@ -782,16 +782,21 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 
 	index := -1
 
-	if taskListFlag != "" {
+	effectiveList := taskListFlag
+	if effectiveList == "" {
+		effectiveList = os.Getenv("GTASKS_DEFAULT_TASKLIST")
+	}
+
+	if effectiveList != "" {
 
 		var titles []string
 		for _, tasklist := range list {
 			titles = append(titles, tasklist.Title)
 		}
 
-		index = sort.SearchStrings(titles, taskListFlag)
+		index = sort.SearchStrings(titles, effectiveList)
 
-		if !(index >= 0 && index < len(list) && list[index].Title == taskListFlag) {
+		if !(index >= 0 && index < len(list) && list[index].Title == effectiveList) {
 			utils.ErrorP("%s\n", "incorrect task-list name")
 		}
 
