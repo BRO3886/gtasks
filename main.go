@@ -16,8 +16,16 @@ limitations under the License.
 package main
 
 import (
+	"embed"
+
 	"github.com/BRO3886/gtasks/cmd"
 )
+
+// EmbeddedSkills contains the agent skills files (SKILL.md + references/)
+// baked into the binary at build time.
+//
+//go:embed skills/gtasks-cli
+var EmbeddedSkills embed.FS
 
 func main() {
 	cmd.Execute()
