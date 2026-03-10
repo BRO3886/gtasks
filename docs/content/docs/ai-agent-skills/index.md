@@ -11,7 +11,7 @@ The gtasks-cli skill contains comprehensive instructions, examples, and helper s
 
 ## Location
 
-Skills are located in the [`skills/gtasks-cli/`](https://github.com/BRO3886/gtasks/tree/master/skills/gtasks-cli) directory of the repository.
+The canonical skill files are located in the [`internal/skills/assets/gtasks-cli/`](https://github.com/BRO3886/gtasks/tree/master/internal/skills/assets/gtasks-cli) directory of the repository.
 
 ## What's Included
 
@@ -32,15 +32,6 @@ Additional documentation for advanced usage:
 
 - **QUICK-REFERENCE.md**: Fast lookup table for common commands
 - **ADVANCED.md**: Scripting, automation, and integration patterns
-- **TASK-IMPORT-TEMPLATE.txt**: Template for bulk task imports
-
-### Helper Scripts
-
-Ready-to-run bash scripts:
-
-- **daily-report.sh**: Generate comprehensive daily task reports
-- **backup-tasks.sh**: Backup all tasks and task lists to JSON
-- **import-tasks.sh**: Bulk import tasks from text files
 
 ## Using with AI Agents
 
@@ -53,7 +44,7 @@ If you're using [Claude Code](https://claude.com/claude-code), the skill may be 
 claude "show me my Google Tasks"
 
 # Or explicitly reference the skill
-claude /plugin skills/gtasks-cli
+claude /plugin internal/skills/assets/gtasks-cli
 ```
 
 ### Other AI Agents
@@ -104,15 +95,15 @@ Once the skill is loaded, you can ask your AI agent:
 
 - [Agent Skills Website](https://agentskills.io)
 - [Agent Skills Specification](https://agentskills.io/spec)
-- [GTasks Skills README](https://github.com/BRO3886/gtasks/blob/master/skills/README.md)
+- [Canonical gtasks skill files](https://github.com/BRO3886/gtasks/tree/master/internal/skills/assets/gtasks-cli)
 
 ## Contributing
 
 To improve the AI skills:
 
-1. Edit files in `skills/gtasks-cli/`
+1. Edit files in `internal/skills/assets/gtasks-cli/`
 2. Test with actual gtasks commands
 3. Update version number in SKILL.md frontmatter
 4. Submit a pull request
 
-See the [skills README](https://github.com/BRO3886/gtasks/blob/master/skills/README.md) for detailed contribution guidelines.
+See the canonical skill directory for contribution guidance and examples.

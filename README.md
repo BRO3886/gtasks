@@ -14,7 +14,7 @@ Refer to the [docs website](https://gtasks.sidv.dev) to read about available com
 
 GTasks includes [Agent Skills](https://agentskills.io) support for AI agents like Claude Code. The skills provide comprehensive instructions for AI agents to effectively use gtasks.
 
-📁 **Location:** [`skills/gtasks-cli/`](skills/gtasks-cli/)
+📁 **Location:** [`internal/skills/assets/gtasks-cli/`](internal/skills/assets/gtasks-cli/)
 
 **Features:**
 - Complete command reference with examples
@@ -24,7 +24,7 @@ GTasks includes [Agent Skills](https://agentskills.io) support for AI agents lik
 
 **For AI Users:** Load the skill with Claude Code or compatible AI agents to get intelligent assistance with Google Tasks management.
 
-**Learn more:** See [`skills/README.md`](skills/README.md) for details.
+**Learn more:** See [`internal/skills/assets/gtasks-cli/`](internal/skills/assets/gtasks-cli/) for the canonical skill files.
 
 ## Instructions to install
 

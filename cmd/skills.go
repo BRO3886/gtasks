@@ -73,7 +73,7 @@ func runSkillsInstall(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	return installToTargets(embeddedSkills, targets, homeDir)
+	return installToTargets(skills.EmbeddedFiles, targets, homeDir)
 }
 
 func installToTargets(embeddedFS fs.FS, targets []skills.AgentTarget, homeDir string) error {

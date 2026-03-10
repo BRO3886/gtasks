@@ -54,12 +54,12 @@ func Install(embeddedFS fs.FS, target AgentTarget, version string) ([]string, er
 
 	var written []string
 
-	err := fs.WalkDir(embeddedFS, "skills/gtasks-cli", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(embeddedFS, "assets/gtasks-cli", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel("skills/gtasks-cli", path)
+		relPath, err := filepath.Rel("assets/gtasks-cli", path)
 		if err != nil {
 			return err
 		}
