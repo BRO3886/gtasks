@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 
 	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/BRO3886/gtasks/internal/utils"
-	keyring "github.com/zalando/go-keyring"
+	"github.com/zalando/go-keyring"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
@@ -46,7 +47,9 @@ func Login() error {
 		}
 		// Token exists but is invalid/expired — remove it and proceed
 		utils.Info("Existing token is expired or invalid, re-authenticating...\n")
-		deleteToken()
+		if err := deleteToken(); err != nil {
+			utils.Warn("Failed to clear existing token: %v\n", err)
+		}
 	}
 
 	// Perform PKCE + localhost authentication
@@ -55,12 +58,13 @@ func Login() error {
 		return fmt.Errorf("authentication failed: %v", err)
 	}
 
-	// Save token to keyring
-	if err := saveToken(token); err != nil {
+	// Save token
+	backend, err := saveToken(token)
+	if err != nil {
 		return fmt.Errorf("failed to save credentials: %v", err)
 	}
 	utils.Info("✓ Authorization successful! Server was running on port %d\n", port)
-	utils.Info("✓ Credentials saved to system keyring\n")
+	utils.Info("✓ Credentials saved to %s\n", backend)
 
 	return nil
 }
@@ -237,18 +241,19 @@ func getClient(oauthConfig *oauth2.Config) (*http.Client, error) {
 
 // saveToken serializes a token and stores it in the system keyring.
 // Falls back to a plain file if the keyring is unavailable.
-func saveToken(token *oauth2.Token) error {
+// Returns a human-readable description of where the token was stored.
+func saveToken(token *oauth2.Token) (string, error) {
 	data, err := json.Marshal(token)
 	if err != nil {
-		return fmt.Errorf("failed to marshal token: %v", err)
+		return "", fmt.Errorf("failed to marshal token: %v", err)
 	}
 
 	if err := keyring.Set(keyringService, keyringUser, string(data)); err != nil {
 		// Keyring unavailable (e.g. headless server) — fall back to file
 		utils.Warn("System keyring unavailable (%v), falling back to file storage\n", err)
-		return saveTokenToFile(token)
+		return "file", saveTokenToFile(token)
 	}
-	return nil
+	return "system keyring", nil
 }
 
 // loadToken retrieves the token from the keyring, falling back to a legacy file.
@@ -258,6 +263,10 @@ func loadToken() (*oauth2.Token, error) {
 		var token oauth2.Token
 		if jsonErr := json.Unmarshal([]byte(data), &token); jsonErr == nil {
 			return &token, nil
+		} else {
+			// Corrupt keyring entry — warn and clean it up before falling through
+			utils.Warn("Keyring entry is corrupt, clearing it: %v\n", jsonErr)
+			keyring.Delete(keyringService, keyringUser)
 		}
 	}
 
@@ -269,13 +278,17 @@ func loadToken() (*oauth2.Token, error) {
 		return nil, err
 	}
 
-	// Migrate to keyring silently
-	if migrateErr := keyring.Set(keyringService, keyringUser, func() string {
-		b, _ := json.Marshal(token)
-		return string(b)
-	}()); migrateErr == nil {
-		os.Remove(tokFile)
-		utils.Info("✓ Migrated credentials from file to system keyring\n")
+	// Migrate to keyring — verify the write round-trips before deleting the file
+	b, jsonErr := json.Marshal(token)
+	if jsonErr != nil {
+		return token, nil // can't migrate, but token is still usable
+	}
+	if migrateErr := keyring.Set(keyringService, keyringUser, string(b)); migrateErr == nil {
+		// Verify the entry is readable before removing the file
+		if verify, readErr := keyring.Get(keyringService, keyringUser); readErr == nil && verify == string(b) {
+			os.Remove(tokFile)
+			utils.Info("✓ Migrated credentials from file to system keyring\n")
+		}
 	}
 
 	return token, nil
@@ -289,12 +302,21 @@ func deleteToken() error {
 	tokFile := folderPath + "/token.json"
 	fileErr := os.Remove(tokFile)
 
-	// Success if at least one existed and was removed
-	if keyringErr == nil || (fileErr == nil || os.IsNotExist(fileErr)) {
+	// Success if at least one token was actually deleted
+	if keyringErr == nil || fileErr == nil {
 		return nil
 	}
 
-	return fmt.Errorf("not logged in")
+	// Both failed — check if it's simply "not found" vs a real error
+	if errors.Is(keyringErr, keyring.ErrNotFound) && os.IsNotExist(fileErr) {
+		return fmt.Errorf("not logged in")
+	}
+
+	// At least one had a real I/O error
+	if keyringErr != nil && !errors.Is(keyringErr, keyring.ErrNotFound) {
+		return fmt.Errorf("failed to delete from keyring: %v", keyringErr)
+	}
+	return fmt.Errorf("failed to delete token file: %v", fileErr)
 }
 
 // tokenFromFile retrieves a token from a local file (legacy / fallback)
