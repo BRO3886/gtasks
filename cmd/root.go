@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/BRO3886/gtasks/internal/update"
@@ -31,17 +32,30 @@ var rootCmd = &cobra.Command{
 	Made with ❤ by https://github.com/BRO3886
 `,
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		if shouldCheckForUpdate(cmd) {
+		if !shouldCheckForUpdate(cmd) {
+			updateResultCh <- nil
+			return
+		}
+
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			updateResultCh <- nil
+			return
+		}
+
+		// If cache is fresh, resolve synchronously (just a file read — instant).
+		// If cache is stale, fetch from GitHub in a goroutine and wait up to 2s in PostRun.
+		cached := update.ReadCache(homeDir)
+		if cached != nil && update.IsCacheFresh(cached, time.Now()) {
+			if update.CompareVersions(Version, cached.Latest) {
+				updateResultCh <- &update.Result{Latest: cached.Latest, HasUpdate: true}
+			} else {
+				updateResultCh <- nil
+			}
+		} else {
 			go func() {
-				homeDir, err := os.UserHomeDir()
-				if err != nil {
-					updateResultCh <- nil
-					return
-				}
 				updateResultCh <- update.Check(homeDir, Version)
 			}()
-		} else {
-			updateResultCh <- nil
 		}
 	},
 	PersistentPostRun: func(cmd *cobra.Command, args []string) {
@@ -80,7 +94,7 @@ func shouldCheckForUpdate(cmd *cobra.Command) bool {
 		return false
 	}
 
-	// Skip if stdout is not a TTY (piped output)
+	// Skip if stdout is not a TTY (piped output or scripting context)
 	fi, err := os.Stdout.Stat()
 	if err != nil {
 		return false
@@ -93,12 +107,13 @@ func shouldCheckForUpdate(cmd *cobra.Command) bool {
 }
 
 // printUpdateNotice prints an update notice to stderr if a newer version is available.
+// On a cache-hit the channel is already filled so this returns instantly.
+// On a cache-miss (first run per 24h) waits up to 2s for the GitHub fetch goroutine.
 func printUpdateNotice() {
 	var result *update.Result
 	select {
 	case result = <-updateResultCh:
-	default:
-		// Goroutine still running, don't wait
+	case <-time.After(2 * time.Second):
 		result = nil
 	}
 
