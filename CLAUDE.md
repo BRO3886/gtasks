@@ -174,7 +174,7 @@ When implementing a new feature, follow this workflow:
 - **Cross-platform**: Builds for multiple operating systems
 - **Table Output**: Formatted display of tasks with status indicators
 - **Sorting**: Multiple sort options for task views
-- **Documentation**: Hugo-based documentation website
+- **Documentation**: Hugo-based documentation website hosted on Cloudflare Pages at `https://gtasks.sidv.dev`; files in `docs/static/` are served directly (e.g. `docs/static/install` → `https://gtasks.sidv.dev/install`)
 - **Layered Config**: koanf-based config supports toml/yaml/json, env vars, and build-time defaults
 
 ## Security Considerations
