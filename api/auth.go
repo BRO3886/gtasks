@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -11,9 +12,15 @@ import (
 
 	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/BRO3886/gtasks/internal/utils"
+	"github.com/zalando/go-keyring"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
+)
+
+const (
+	keyringService = "gtasks"
+	keyringUser    = "oauth2-token"
 )
 
 // Pre-approved ports that are registered in Google Cloud Console
@@ -33,17 +40,16 @@ func Login() error {
 	}
 
 	// Check if already logged in with a valid token
-	folderPath := config.GetInstallLocation()
-	tokFile := folderPath + "/token.json"
-	existingToken, err := tokenFromFile(tokFile)
+	existingToken, err := loadToken()
 	if err == nil {
-		// Token file exists, check if it's still valid
 		if isTokenValid(oauthConfig, existingToken) {
 			return fmt.Errorf("already logged in (token is valid)")
 		}
-		// Token exists but is invalid/expired, remove it and proceed
+		// Token exists but is invalid/expired — remove it and proceed
 		utils.Info("Existing token is expired or invalid, re-authenticating...\n")
-		os.Remove(tokFile)
+		if err := deleteToken(); err != nil {
+			utils.Warn("Failed to clear existing token: %v\n", err)
+		}
 	}
 
 	// Perform PKCE + localhost authentication
@@ -53,39 +59,33 @@ func Login() error {
 	}
 
 	// Save token
-	saveToken(tokFile, token)
+	backend, err := saveToken(token)
+	if err != nil {
+		return fmt.Errorf("failed to save credentials: %v", err)
+	}
 	utils.Info("✓ Authorization successful! Server was running on port %d\n", port)
-	utils.Info("✓ Credentials saved to %s\n", tokFile)
+	utils.Info("✓ Credentials saved to %s\n", backend)
 
 	return nil
 }
 
 // isTokenValid checks if a token is still valid by making a test API call
 func isTokenValid(oauthConfig *oauth2.Config, token *oauth2.Token) bool {
-	// Create a client with the token
 	client := oauthConfig.Client(context.Background(), token)
 
-	// Try to create a Tasks service and make a simple API call
 	srv, err := tasks.NewService(context.Background(), option.WithHTTPClient(client))
 	if err != nil {
 		return false
 	}
 
-	// Try to list task lists (minimal API call to verify token)
 	_, err = srv.Tasklists.List().MaxResults(1).Do()
 	return err == nil
 }
 
 // Logout removes stored authentication token
 func Logout() error {
-	folderPath := config.GetInstallLocation()
-	tokFile := folderPath + "/token.json"
-	err := os.Remove(tokFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("not logged in")
-		}
-		return fmt.Errorf("failed to logout: %v", err)
+	if err := deleteToken(); err != nil {
+		return err
 	}
 	utils.Info("✓ Successfully logged out\n")
 	return nil
@@ -113,21 +113,17 @@ func GetService() (*tasks.Service, error) {
 
 // authenticateWithPKCE performs OAuth2 authentication with PKCE
 func authenticateWithPKCE(config *oauth2.Config) (*oauth2.Token, int, error) {
-	// Generate PKCE verifier and challenge
 	verifier := oauth2.GenerateVerifier()
 
-	// Try to bind to one of the pre-approved ports
 	port, listener, err := findAvailablePort()
 	if err != nil {
 		return nil, 0, fmt.Errorf("unable to find available port: %v", err)
 	}
 	defer listener.Close()
 
-	// Update config with the selected port
 	configCopy := *config
 	configCopy.RedirectURL = fmt.Sprintf("http://localhost:%d/callback", port)
 
-	// Generate authorization URL with PKCE
 	state := "gtasks-auth-state"
 	authURL := configCopy.AuthCodeURL(state,
 		oauth2.AccessTypeOffline,
@@ -137,13 +133,11 @@ func authenticateWithPKCE(config *oauth2.Config) (*oauth2.Token, int, error) {
 	utils.Info("If browser doesn't open, visit: %s\n", authURL)
 	utils.Info("Starting local server on http://localhost:%d...\n", port)
 
-	// Try to open browser
 	if err := utils.OpenBrowser(authURL); err != nil {
 		utils.Warn("Failed to open browser automatically: %v\n", err)
 		utils.Warn("Please manually visit the URL above\n")
 	}
 
-	// Start callback server
 	return startCallbackServer(listener, &configCopy, verifier, state, port)
 }
 
@@ -166,20 +160,17 @@ func startCallbackServer(listener net.Listener, config *oauth2.Config, verifier,
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/callback", func(w http.ResponseWriter, r *http.Request) {
-		// Verify state parameter (CSRF protection)
 		if r.URL.Query().Get("state") != state {
 			errorChan <- fmt.Errorf("invalid state parameter")
 			return
 		}
 
-		// Get authorization code
 		code := r.URL.Query().Get("code")
 		if code == "" {
 			errorChan <- fmt.Errorf("no authorization code received")
 			return
 		}
 
-		// Exchange authorization code for token with PKCE verifier
 		token, err := config.Exchange(context.Background(), code,
 			oauth2.VerifierOption(verifier))
 		if err != nil {
@@ -189,7 +180,6 @@ func startCallbackServer(listener net.Listener, config *oauth2.Config, verifier,
 
 		tokenChan <- token
 
-		// Return success page
 		w.Header().Set("Content-Type", "text/html")
 		fmt.Fprintf(w, `
 <!DOCTYPE html>
@@ -223,14 +213,12 @@ func startCallbackServer(listener net.Listener, config *oauth2.Config, verifier,
 		}
 	}()
 
-	// Ensure server shuts down
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		server.Shutdown(ctx)
 	}()
 
-	// Wait for result with timeout
 	select {
 	case token := <-tokenChan:
 		return token, port, nil
@@ -243,10 +231,7 @@ func startCallbackServer(listener net.Listener, config *oauth2.Config, verifier,
 
 // getClient retrieves HTTP client with valid token
 func getClient(oauthConfig *oauth2.Config) (*http.Client, error) {
-	folderPath := config.GetInstallLocation()
-	tokFile := folderPath + "/token.json"
-
-	token, err := tokenFromFile(tokFile)
+	token, err := loadToken()
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated. Run 'gtasks login' first")
 	}
@@ -254,7 +239,87 @@ func getClient(oauthConfig *oauth2.Config) (*http.Client, error) {
 	return oauthConfig.Client(context.Background(), token), nil
 }
 
-// tokenFromFile retrieves a token from a local file
+// saveToken serializes a token and stores it in the system keyring.
+// Falls back to a plain file if the keyring is unavailable.
+// Returns a human-readable description of where the token was stored.
+func saveToken(token *oauth2.Token) (string, error) {
+	data, err := json.Marshal(token)
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal token: %v", err)
+	}
+
+	if err := keyring.Set(keyringService, keyringUser, string(data)); err != nil {
+		// Keyring unavailable (e.g. headless server) — fall back to file
+		utils.Warn("System keyring unavailable (%v), falling back to file storage\n", err)
+		return "file", saveTokenToFile(token)
+	}
+	return "system keyring", nil
+}
+
+// loadToken retrieves the token from the keyring, falling back to a legacy file.
+func loadToken() (*oauth2.Token, error) {
+	data, err := keyring.Get(keyringService, keyringUser)
+	if err == nil {
+		var token oauth2.Token
+		if jsonErr := json.Unmarshal([]byte(data), &token); jsonErr == nil {
+			return &token, nil
+		} else {
+			// Corrupt keyring entry — warn and clean it up before falling through
+			utils.Warn("Keyring entry is corrupt, clearing it: %v\n", jsonErr)
+			keyring.Delete(keyringService, keyringUser)
+		}
+	}
+
+	// Keyring unavailable or empty — try legacy file
+	folderPath := config.GetInstallLocation()
+	tokFile := folderPath + "/token.json"
+	token, err := tokenFromFile(tokFile)
+	if err != nil {
+		return nil, err
+	}
+
+	// Migrate to keyring — verify the write round-trips before deleting the file
+	b, jsonErr := json.Marshal(token)
+	if jsonErr != nil {
+		return token, nil // can't migrate, but token is still usable
+	}
+	if migrateErr := keyring.Set(keyringService, keyringUser, string(b)); migrateErr == nil {
+		// Verify the entry is readable before removing the file
+		if verify, readErr := keyring.Get(keyringService, keyringUser); readErr == nil && verify == string(b) {
+			os.Remove(tokFile)
+			utils.Info("✓ Migrated credentials from file to system keyring\n")
+		}
+	}
+
+	return token, nil
+}
+
+// deleteToken removes the token from both keyring and legacy file.
+func deleteToken() error {
+	keyringErr := keyring.Delete(keyringService, keyringUser)
+
+	folderPath := config.GetInstallLocation()
+	tokFile := folderPath + "/token.json"
+	fileErr := os.Remove(tokFile)
+
+	// Success if at least one token was actually deleted
+	if keyringErr == nil || fileErr == nil {
+		return nil
+	}
+
+	// Both failed — check if it's simply "not found" vs a real error
+	if errors.Is(keyringErr, keyring.ErrNotFound) && os.IsNotExist(fileErr) {
+		return fmt.Errorf("not logged in")
+	}
+
+	// At least one had a real I/O error
+	if keyringErr != nil && !errors.Is(keyringErr, keyring.ErrNotFound) {
+		return fmt.Errorf("failed to delete from keyring: %v", keyringErr)
+	}
+	return fmt.Errorf("failed to delete token file: %v", fileErr)
+}
+
+// tokenFromFile retrieves a token from a local file (legacy / fallback)
 func tokenFromFile(file string) (*oauth2.Token, error) {
 	f, err := os.Open(file)
 	if err != nil {
@@ -267,12 +332,14 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 	return &token, err
 }
 
-// saveToken saves a token to a file path
-func saveToken(path string, token *oauth2.Token) {
+// saveTokenToFile is the fallback when keyring is unavailable
+func saveTokenToFile(token *oauth2.Token) error {
+	folderPath := config.GetInstallLocation()
+	path := folderPath + "/token.json"
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		utils.ErrorP("Unable to cache oauth token: %v", err)
+		return fmt.Errorf("unable to cache oauth token: %v", err)
 	}
 	defer f.Close()
-	json.NewEncoder(f).Encode(token)
+	return json.NewEncoder(f).Encode(token)
 }
