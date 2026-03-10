@@ -7,13 +7,19 @@ v ?= v0.12.0
 
 # Set EMBED_CREDS=1 to embed credentials in binary
 # Example: make dev EMBED_CREDS=1
+VERSION_LDFLAGS = -X github.com/BRO3886/gtasks/cmd.Version=$(v)
+BUILD_LDFLAGS = $(VERSION_LDFLAGS)
+
 ifdef EMBED_CREDS
 ifdef GTASKS_CLIENT_ID
 ifdef GTASKS_CLIENT_SECRET
-LDFLAGS = -ldflags "-X github.com/BRO3886/gtasks/internal/config.ClientID=$(GTASKS_CLIENT_ID) -X github.com/BRO3886/gtasks/internal/config.ClientSecret=$(GTASKS_CLIENT_SECRET)"
+BUILD_LDFLAGS += -X github.com/BRO3886/gtasks/internal/config.ClientID=$(GTASKS_CLIENT_ID)
+BUILD_LDFLAGS += -X github.com/BRO3886/gtasks/internal/config.ClientSecret=$(GTASKS_CLIENT_SECRET)
 endif
 endif
 endif
+
+LDFLAGS = -ldflags "$(BUILD_LDFLAGS)"
 
 dev:
 	@echo "Building for development"
@@ -29,40 +35,40 @@ windows:
 ifdef LDFLAGS
 	@echo "  (with embedded credentials)"
 endif
-	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o ./bin/windows-amd64/gtasks.exe
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o ./bin/windows-amd64/gtasks.exe .
 
 linux:
 	@echo "Building for linux"
 ifdef LDFLAGS
 	@echo "  (with embedded credentials)"
 endif
-	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/linux-amd64/gtasks
-	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o ./bin/linux-arm64/gtasks
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/linux-amd64/gtasks .
+	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o ./bin/linux-arm64/gtasks .
 
 mac:
 	@echo "Building for mac"
 ifdef LDFLAGS
 	@echo "  (with embedded credentials)"
 endif
-	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o ./bin/mac-amd64/gtasks
-	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o ./bin/mac-arm64/gtasks
+	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o ./bin/mac-amd64/gtasks .
+	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o ./bin/mac-arm64/gtasks .
 
 all:
 	@echo "Building for every OS and Platform"
 ifdef LDFLAGS
 	@echo "  (with embedded credentials)"
-	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o ./bin/windows_amd64/gtasks.exe
-	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/linux_amd64/gtasks
-	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o ./bin/linux_arm64/gtasks
-	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o ./bin/mac_amd64/gtasks
-	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o ./bin/mac_arm64/gtasks
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o ./bin/windows_amd64/gtasks.exe .
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/linux_amd64/gtasks .
+	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o ./bin/linux_arm64/gtasks .
+	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o ./bin/mac_amd64/gtasks .
+	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o ./bin/mac_arm64/gtasks .
 else
 	@echo "  (without embedded credentials)"
-	GOOS=windows GOARCH=amd64 go build -o ./bin/windows_amd64/gtasks.exe
-	GOOS=linux GOARCH=amd64 go build -o ./bin/linux_amd64/gtasks
-	GOOS=linux GOARCH=arm64 go build -o ./bin/linux_arm64/gtasks
-	GOOS=darwin GOARCH=amd64 go build -o ./bin/mac_amd64/gtasks
-	GOOS=darwin GOARCH=arm64 go build -o ./bin/mac_arm64/gtasks
+	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o ./bin/windows_amd64/gtasks.exe .
+	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o ./bin/linux_amd64/gtasks .
+	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o ./bin/linux_arm64/gtasks .
+	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o ./bin/mac_amd64/gtasks .
+	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o ./bin/mac_arm64/gtasks .
 endif
 	@echo "Zipping for release"
 	@mkdir -p bin/releases
