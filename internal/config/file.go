@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/joho/godotenv"
 	"github.com/knadh/koanf/parsers/json"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/parsers/yaml"
@@ -21,12 +20,11 @@ var k = koanf.New(".")
 
 // LoadAppConfig loads configuration using the following priority order (highest first):
 //
-//  1. Environment variables (GTASKS_* prefix, stripped before loading)
-//  2. .env file in the config directory
-//  3. Config file: config.toml / config.yaml / config.json in the config directory
+//  1. Environment variables (GTASKS_* prefix)
+//  2. Config file: config.toml / config.yaml / config.json in the config directory
 //
-// A missing config file or .env file is silently ignored.
-// Malformed files log a warning and fall through to lower-priority sources.
+// A missing config file is silently ignored.
+// A malformed config file logs a warning and falls through to env vars.
 func LoadAppConfig() {
 	k = koanf.New(".") // reset so repeated calls don't accumulate state
 	cfgDir := GetInstallLocation()
@@ -48,12 +46,6 @@ func LoadAppConfig() {
 			}
 			break // use the first one found
 		}
-	}
-
-	// 2. .env file
-	dotenvPath := filepath.Join(cfgDir, ".env")
-	if err := godotenv.Load(dotenvPath); err != nil && !os.IsNotExist(err) {
-		utils.Warn("Could not read .env file %s: %v\n", dotenvPath, err)
 	}
 
 	// 1. Environment variables — GTASKS_ prefix, mapped to dotted keys
