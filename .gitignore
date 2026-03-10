@@ -11,3 +11,4 @@ tasks/
 specs/
 .env
 .DS_Store
+journals
