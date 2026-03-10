@@ -12,19 +12,23 @@ Refer to the [docs website](https://gtasks.sidv.dev) to read about available com
 
 ## AI Agent Skills
 
-GTasks includes [Agent Skills](https://agentskills.io) support for AI agents like Claude Code. The skills provide comprehensive instructions for AI agents to effectively use gtasks.
+GTasks includes an embedded [Agent Skill](https://agentskills.io) that can be installed for supported AI agents.
 
-📁 **Location:** [`skills/gtasks-cli/`](skills/gtasks-cli/)
+**Supported targets:**
+- Claude Code via `~/.claude/skills/gtasks-cli/`
+- Codex-compatible agents via `~/.agents/skills/gtasks-cli/`
+- OpenClaw via `~/.openclaw/skills/gtasks-cli/`
 
-**Features:**
-- Complete command reference with examples
-- Cross-platform support (macOS, Linux, Windows)
-- Helper scripts for daily reports, backups, and imports
-- Quick reference guide and advanced usage patterns
+**Commands:**
 
-**For AI Users:** Load the skill with Claude Code or compatible AI agents to get intelligent assistance with Google Tasks management.
+```bash
+gtasks skills status
+gtasks skills install
+gtasks skills install --agent codex
+gtasks skills uninstall --agent codex
+```
 
-**Learn more:** See [`skills/README.md`](skills/README.md) for details.
+**For contributors:** the canonical skill files live in [`internal/skills/assets/gtasks-cli/`](internal/skills/assets/gtasks-cli/).
 
 ## Instructions to install
 
@@ -70,8 +74,11 @@ GTASKS_CLIENT_SECRET=your-client-secret
 ### Build Commands
 
 ```bash
-# Development build (uses .env file)
+# Development build
 make dev
+
+# Development build with embedded credentials from .env
+make dev EMBED_CREDS=1
 
 # Build for specific platforms
 make linux    # Linux (amd64 + arm64)

@@ -22,6 +22,8 @@ allowed-tools: Bash(gtasks:*)
 
 This skill enables you to manage Google Tasks directly from the command line using the `gtasks` CLI tool.
 
+It can also be installed into supported AI agent skill directories with the built-in `gtasks skills` commands.
+
 ## Prerequisites
 
 Before using any commands, ensure the following requirements are met:
@@ -87,7 +89,7 @@ chmod 600 ~/.gtasks_env
 echo 'source ~/.gtasks_env' >> ~/.zshrc
 ```
 
-### 2. Authentication
+### 3. Authentication
 
 Once environment variables are set, authenticate with Google:
 
@@ -96,6 +98,31 @@ gtasks login
 ```
 
 This will open a browser for OAuth2 authentication. The token is stored in `~/.gtasks/token.json` with 0600 permissions. Verify with `ls -la ~/.gtasks/token.json`. If you no longer need access, run `gtasks logout` to revoke and delete the token.
+
+### 4. Optional: Install This Skill for Supported Agents
+
+If `gtasks` is already installed, you can install this skill into supported agent directories with:
+
+```bash
+gtasks skills install
+```
+
+Supported agent targets:
+
+- `claude` -> `~/.claude/skills/gtasks-cli/`
+- `codex` -> `~/.agents/skills/gtasks-cli/`
+- `openclaw` -> `~/.openclaw/skills/gtasks-cli/`
+
+Useful commands:
+
+```bash
+gtasks skills status
+gtasks skills install --agent codex
+gtasks skills install --agent all
+gtasks skills uninstall --agent codex
+```
+
+For automated setups, prefer `--agent <name>` or `--agent all` to avoid interactive prompts.
 
 ## Core Concepts
 
@@ -123,6 +150,40 @@ Opens browser for Google OAuth2 authentication. Required before using any other 
 gtasks logout
 ```
 Removes stored credentials from `~/.gtasks/token.json`.
+
+## Skill Management
+
+These commands manage installation of the `gtasks-cli` skill itself for supported AI agents.
+
+### Check Skill Status
+
+```bash
+gtasks skills status
+```
+
+Shows whether the skill is installed for Claude, Codex, and OpenClaw, along with the installed version when available.
+
+### Install the Skill
+
+```bash
+gtasks skills install
+gtasks skills install --agent claude
+gtasks skills install --agent codex
+gtasks skills install --agent openclaw
+gtasks skills install --agent all
+```
+
+Installs the embedded `gtasks-cli` skill files into the selected agent skill directory.
+
+### Uninstall the Skill
+
+```bash
+gtasks skills uninstall
+gtasks skills uninstall --agent codex
+gtasks skills uninstall --agent all
+```
+
+Removes the installed `gtasks-cli` skill from the selected agent skill directory.
 
 ## Task List Management
 

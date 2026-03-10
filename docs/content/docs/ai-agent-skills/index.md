@@ -5,13 +5,32 @@ weight: 5
 
 ## Overview
 
-GTasks includes [Agent Skills](https://agentskills.io) support for AI agents like Claude Code. Agent Skills provide a standardized format for teaching AI agents how to effectively use command-line tools.
+GTasks includes an embedded [Agent Skill](https://agentskills.io) for teaching compatible AI agents how to use `gtasks` effectively.
 
-The gtasks-cli skill contains comprehensive instructions, examples, and helper scripts that enable AI agents to intelligently assist with Google Tasks management.
+The `gtasks-cli` skill contains command references, examples, and workflow guidance for Google Tasks management. You can install it directly with `gtasks skills install`.
 
-## Location
+## Install with gtasks
 
-Skills are located in the [`skills/gtasks-cli/`](https://github.com/BRO3886/gtasks/tree/master/skills/gtasks-cli) directory of the repository.
+Use the built-in skill management commands:
+
+```bash
+gtasks skills status
+gtasks skills install
+gtasks skills install --agent codex
+gtasks skills uninstall --agent codex
+```
+
+Supported install targets:
+
+- `claude` -> `~/.claude/skills/gtasks-cli/`
+- `codex` -> `~/.agents/skills/gtasks-cli/`
+- `openclaw` -> `~/.openclaw/skills/gtasks-cli/`
+
+`gtasks skills install` copies the embedded skill files into the selected agent's skill directory so they are available in future sessions.
+
+## Repository Location
+
+For contributors, the canonical skill files are located in the [`internal/skills/assets/gtasks-cli/`](https://github.com/BRO3886/gtasks/tree/master/internal/skills/assets/gtasks-cli) directory of the repository.
 
 ## What's Included
 
@@ -32,33 +51,22 @@ Additional documentation for advanced usage:
 
 - **QUICK-REFERENCE.md**: Fast lookup table for common commands
 - **ADVANCED.md**: Scripting, automation, and integration patterns
-- **TASK-IMPORT-TEMPLATE.txt**: Template for bulk task imports
-
-### Helper Scripts
-
-Ready-to-run bash scripts:
-
-- **daily-report.sh**: Generate comprehensive daily task reports
-- **backup-tasks.sh**: Backup all tasks and task lists to JSON
-- **import-tasks.sh**: Bulk import tasks from text files
 
 ## Using with AI Agents
 
 ### Claude Code
 
-If you're using [Claude Code](https://claude.com/claude-code), the skill may be automatically loaded when relevant, or you can explicitly load it:
+If you're using [Claude Code](https://claude.com/claude-code), install the skill first:
 
 ```bash
-# Let Claude discover and load skills automatically
-claude "show me my Google Tasks"
-
-# Or explicitly reference the skill
-claude /plugin skills/gtasks-cli
+gtasks skills install --agent claude
 ```
+
+After installation, Claude can discover and load the skill automatically when relevant.
 
 ### Other AI Agents
 
-Any AI agent that supports the [Agent Skills specification](https://agentskills.io/spec) can use this skill. Refer to your AI agent's documentation for loading skills.
+Other agents can use the installed skill if they support the [Agent Skills specification](https://agentskills.io/spec) or scan compatible skill directories.
 
 ## Prerequisites for AI Usage
 
@@ -104,15 +112,16 @@ Once the skill is loaded, you can ask your AI agent:
 
 - [Agent Skills Website](https://agentskills.io)
 - [Agent Skills Specification](https://agentskills.io/spec)
-- [GTasks Skills README](https://github.com/BRO3886/gtasks/blob/master/skills/README.md)
+- [Canonical gtasks skill files](https://github.com/BRO3886/gtasks/tree/master/internal/skills/assets/gtasks-cli)
 
 ## Contributing
 
 To improve the AI skills:
 
-1. Edit files in `skills/gtasks-cli/`
-2. Test with actual gtasks commands
-3. Update version number in SKILL.md frontmatter
-4. Submit a pull request
+1. Edit files in `internal/skills/assets/gtasks-cli/`
+2. Test with actual `gtasks` commands
+3. Test `gtasks skills status` and at least one install flow
+4. Update version number in SKILL.md frontmatter if needed
+5. Submit a pull request
 
-See the [skills README](https://github.com/BRO3886/gtasks/blob/master/skills/README.md) for detailed contribution guidelines.
+See the canonical skill directory for contribution guidance and examples.
