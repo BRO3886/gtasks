@@ -30,16 +30,23 @@ gtasks skills uninstall --agent codex
 
 **For contributors:** the canonical skill files live in [`internal/skills/assets/gtasks-cli/`](internal/skills/assets/gtasks-cli/).
 
-## Instructions to install
+## Installation
 
-1. Download the binary for your system (check [releases](https://github.com/BRO3886/gtasks/releases))
-2. Move to a particular folder, for eg Documents
-3. Append the absolute path (use `pwd`) of the folder to `PATH`
-4. Execute `gtasks` from anywhere
+**macOS / Linux (recommended):**
 
-## Instructions to install using go install
+```bash
+curl -fsSL https://gtasks.sidv.dev/install | bash
+```
 
-> Not working yet. Will be fixed soon.
+Installs to `~/.local/bin` by default. Override with `INSTALL_DIR`:
+
+```bash
+INSTALL_DIR=/usr/local/bin curl -fsSL https://gtasks.sidv.dev/install | bash
+```
+
+**Manual install:** Download the binary for your system from [releases](https://github.com/BRO3886/gtasks/releases), move it to a directory in your `PATH`, and `chmod +x gtasks`.
+
+**Go install:**
 
 ```bash
 go install github.com/BRO3886/gtasks@latest
@@ -63,13 +70,7 @@ git clone https://github.com/BRO3886/gtasks
 cd gtasks
 ```
 
-2. Create a `.env` file with your OAuth2 credentials:
-
-```bash
-# .env
-GTASKS_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GTASKS_CLIENT_SECRET=your-client-secret
-```
+2. Set up credentials (see Configuration section below).
 
 ### Build Commands
 
@@ -124,7 +125,11 @@ client_id     = "your-client-id.apps.googleusercontent.com"
 client_secret = "your-client-secret"
 ```
 
-Or create a `.env` file (for building from source only).
+When building from source, you can also pass credentials at build time:
+
+```bash
+make dev EMBED_CREDS=1   # reads GTASKS_CLIENT_ID/SECRET from .env
+```
 
 ### Token Storage and Configuration
 
