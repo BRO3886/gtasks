@@ -3,68 +3,82 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
+
+	"github.com/joho/godotenv"
+	"github.com/knadh/koanf/parsers/json"
+	"github.com/knadh/koanf/parsers/toml"
+	"github.com/knadh/koanf/parsers/yaml"
+	"github.com/knadh/koanf/providers/env"
+	"github.com/knadh/koanf/providers/file"
+	"github.com/knadh/koanf/v2"
 
 	"github.com/BRO3886/gtasks/internal/utils"
-	"github.com/pelletier/go-toml"
 )
 
-// AppConfig holds settings loaded from the gtasks configuration file (config.toml).
+// k is the package-level koanf instance loaded by LoadAppConfig.
+var k = koanf.New(".")
+
+// LoadAppConfig loads configuration using the following priority order (highest first):
 //
-// The file is looked up in GetInstallLocation() — typically
-// $XDG_CONFIG_HOME/gtasks/config.toml (or ~/.gtasks/config.toml for legacy installs).
+//  1. Environment variables (GTASKS_* prefix, stripped before loading)
+//  2. .env file in the config directory
+//  3. Config file: config.toml / config.yaml / config.json in the config directory
 //
-// Environment variables and CLI flags override values set here; see each field for details.
-type AppConfig struct {
-	// Credentials holds OAuth2 client credentials for the Google Tasks API.
-	// These are only needed when building or running gtasks with your own
-	// Google Cloud project; official releases have credentials embedded at build time.
-	Credentials struct {
-		// ClientID is the Google OAuth2 client ID.
-		// Overridden by the GTASKS_CLIENT_ID environment variable.
-		ClientID string `toml:"client_id"`
-
-		// ClientSecret is the Google OAuth2 client secret.
-		// Overridden by the GTASKS_CLIENT_SECRET environment variable.
-		ClientSecret string `toml:"client_secret"`
-	} `toml:"credentials"`
-
-	// Tasks holds preferences for task operations.
-	Tasks struct {
-		// DefaultTaskList is the task list name used when the -l flag is not provided.
-		// Overridden by the GTASKS_DEFAULT_TASKLIST environment variable, then by -l flag.
-		DefaultTaskList string `toml:"default_task_list"`
-	} `toml:"tasks"`
-}
-
-// appCfg is the package-level config loaded by LoadAppConfig.
-var appCfg AppConfig
-
-// LoadAppConfig reads config.toml from the gtasks configuration directory and stores
-// the result in the package-level appCfg variable. A missing config file is silently
-// ignored; a malformed file logs a warning and uses zero-value defaults.
+// A missing config file or .env file is silently ignored.
+// Malformed files log a warning and fall through to lower-priority sources.
 func LoadAppConfig() {
-	cfgPath := filepath.Join(GetInstallLocation(), "config.toml")
+	cfgDir := GetInstallLocation()
 
-	data, err := os.ReadFile(cfgPath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			utils.Warn("Could not read config file %s: %v\n", cfgPath, err)
+	// 3. Config file (lowest priority — loaded first, overridden by layers above)
+	for _, candidate := range []struct {
+		name   string
+		parser koanf.Parser
+	}{
+		{"config.toml", toml.Parser()},
+		{"config.yaml", yaml.Parser()},
+		{"config.yml", yaml.Parser()},
+		{"config.json", json.Parser()},
+	} {
+		cfgPath := filepath.Join(cfgDir, candidate.name)
+		if _, err := os.Stat(cfgPath); err == nil {
+			if err := k.Load(file.Provider(cfgPath), candidate.parser); err != nil {
+				utils.Warn("Could not parse config file %s: %v\n", cfgPath, err)
+			}
+			break // use the first one found
 		}
-		return
 	}
 
-	if err := toml.Unmarshal(data, &appCfg); err != nil {
-		utils.Warn("Could not parse config file %s: %v\n", cfgPath, err)
+	// 2. .env file
+	dotenvPath := filepath.Join(cfgDir, ".env")
+	if err := godotenv.Load(dotenvPath); err != nil && !os.IsNotExist(err) {
+		utils.Warn("Could not read .env file %s: %v\n", dotenvPath, err)
 	}
+
+	// 1. Environment variables — GTASKS_ prefix, mapped to dotted keys
+	// e.g. GTASKS_CLIENT_ID -> credentials.client_id
+	//      GTASKS_DEFAULT_TASKLIST -> tasks.default_task_list
+	k.Load(env.Provider("GTASKS_", ".", func(s string) string {
+		s = strings.TrimPrefix(s, "GTASKS_")
+		s = strings.ToLower(s)
+		switch s {
+		case "client_id":
+			return "credentials.client_id"
+		case "client_secret":
+			return "credentials.client_secret"
+		case "default_tasklist":
+			return "tasks.default_task_list"
+		}
+		return s
+	}), nil)
 }
 
-// GetAppConfig returns the loaded application configuration.
-func GetAppConfig() AppConfig {
-	return appCfg
-}
-
-// GetDefaultTaskList returns the default task list name from the config file,
-// or an empty string if none is set.
+// GetDefaultTaskList returns the default task list from config/env, or empty string.
 func GetDefaultTaskList() string {
-	return appCfg.Tasks.DefaultTaskList
+	return k.String("tasks.default_task_list")
+}
+
+// GetCredentials returns client ID and secret from config/env.
+func GetCredentials() (clientID, clientSecret string) {
+	return k.String("credentials.client_id"), k.String("credentials.client_secret")
 }

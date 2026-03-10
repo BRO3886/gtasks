@@ -783,11 +783,8 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 
 	index := -1
 
-	// Resolution order: -l flag > GTASKS_DEFAULT_TASKLIST env var > config file default_task_list
+	// Resolution order: -l flag > GTASKS_DEFAULT_TASKLIST env var / config file
 	effectiveList := taskListFlag
-	if effectiveList == "" {
-		effectiveList = os.Getenv("GTASKS_DEFAULT_TASKLIST")
-	}
 	if effectiveList == "" {
 		effectiveList = config.GetDefaultTaskList()
 	}
