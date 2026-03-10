@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/BRO3886/gtasks/internal/utils"
 )
@@ -27,7 +28,11 @@ func GetInstallLocation() string {
 	// Warn if both exist — user may have files split across both dirs
 	if xdgExists && legacyExists {
 		utils.Warn("Both %s and %s exist. Using %s.\n", xdgDir, legacyDir, xdgDir)
-		utils.Warn("To migrate: mv %s/* %s/ && rm -rf %s\n", legacyDir, xdgDir, legacyDir)
+		if runtime.GOOS == "windows" {
+			utils.Warn("To migrate: move \"%s\\*\" \"%s\\\" && rmdir /s /q \"%s\"\n", legacyDir, xdgDir, legacyDir)
+		} else {
+			utils.Warn("To migrate: mv %s/* %s/ && rm -rf %s\n", legacyDir, xdgDir, legacyDir)
+		}
 	}
 
 	if xdgExists {
