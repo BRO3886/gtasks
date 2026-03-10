@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -17,28 +16,28 @@ var ClientID = ""
 // Note: For Google OAuth2, even "public" desktop clients require a client secret
 var ClientSecret = ""
 
-// GetOAuth2Config creates OAuth2 configuration for Google Tasks API
+// GetOAuth2Config creates OAuth2 configuration for Google Tasks API.
+//
+// Credential resolution order (highest priority first):
+//  1. GTASKS_CLIENT_ID / GTASKS_CLIENT_SECRET env vars or config file (via koanf)
+//  2. Client ID / secret embedded at build time via -ldflags
 func GetOAuth2Config() (*oauth2.Config, error) {
-	// Try environment variable first for client ID
-	clientID := os.Getenv("GTASKS_CLIENT_ID")
+	cfgClientID, cfgClientSecret := GetCredentials()
+
+	clientID := cfgClientID
 	if clientID == "" {
-		// Fall back to build-time injected client ID
 		clientID = ClientID
 	}
-
 	if clientID == "" {
-		return nil, fmt.Errorf("no client ID found. Set GTASKS_CLIENT_ID environment variable or rebuild with client ID")
+		return nil, fmt.Errorf("no client ID found. Set GTASKS_CLIENT_ID env var, add credentials.client_id to config file, or rebuild with client ID")
 	}
 
-	// Try environment variable first for client secret
-	clientSecret := os.Getenv("GTASKS_CLIENT_SECRET")
+	clientSecret := cfgClientSecret
 	if clientSecret == "" {
-		// Fall back to build-time injected client secret
 		clientSecret = ClientSecret
 	}
-
 	if clientSecret == "" {
-		return nil, fmt.Errorf("no client secret found. Set GTASKS_CLIENT_SECRET environment variable or rebuild with client secret")
+		return nil, fmt.Errorf("no client secret found. Set GTASKS_CLIENT_SECRET env var, add credentials.client_secret to config file, or rebuild with client secret")
 	}
 
 	config := &oauth2.Config{

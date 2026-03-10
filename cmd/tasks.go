@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/BRO3886/gtasks/api"
+	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/araddon/dateparse"
 	"github.com/fatih/color"
@@ -782,19 +783,26 @@ func getTaskLists(srv *tasks.Service) tasks.TaskList {
 
 	index := -1
 
-	if taskListFlag != "" {
+	// Resolution order: -l flag > GTASKS_DEFAULT_TASKLIST env var / config file
+	effectiveList := taskListFlag
+	if effectiveList == "" {
+		effectiveList = config.GetDefaultTaskList()
+	}
 
+	if effectiveList != "" {
 		var titles []string
 		for _, tasklist := range list {
 			titles = append(titles, tasklist.Title)
 		}
 
-		index = sort.SearchStrings(titles, taskListFlag)
+		index = sort.SearchStrings(titles, effectiveList)
 
-		if !(index >= 0 && index < len(list) && list[index].Title == taskListFlag) {
-			utils.ErrorP("%s\n", "incorrect task-list name")
+		if !(index >= 0 && index < len(list) && list[index].Title == effectiveList) {
+			utils.ErrorP("%s '%s'\n", "incorrect task-list name", effectiveList)
 		}
 
+	} else if len(list) == 1 {
+		index = 0
 	} else {
 		utils.Print("Choose a Tasklist:")
 		var l []string
