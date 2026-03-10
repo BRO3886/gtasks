@@ -1,8 +1,10 @@
 ---
 title: "Configuration"
+description: "Configure gtasks with a config file, environment variables, or build-time flags. Supports TOML, YAML, and JSON."
 draft: false
 weight: 5
-summary: Configure gtasks with a config file, environment variables, or build-time flags
+sitemap:
+  priority: 0.8
 ---
 
 GTasks supports configuration through a config file, environment variables, and CLI flags.

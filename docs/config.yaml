@@ -1,0 +1,33 @@
+baseURL: "https://gtasks.sidv.dev/"
+title: "gtasks — Google Tasks CLI"
+theme: "gtasks-docs"
+enableRobotsTXT: true
+languageCode: "en-us"
+pygmentsCodeFences: true
+pygmentsCodefencesGuessSyntax: true
+pygmentsUseClasses: true
+
+params:
+  description: "Manage Google Tasks from the terminal. View, add, complete, and delete tasks with one command. Works with Claude Code, Codex, and other AI agents."
+  tagline: "Your Google Tasks. In the terminal."
+  github_url: "https://github.com/BRO3886/gtasks"
+  twitter_handle: "@sidv_22"
+  keywords:
+    - Google Tasks CLI
+    - gtasks
+    - manage Google Tasks from terminal
+    - Google Tasks command line tool
+    - AI agent Google Tasks
+    - Claude Code Google Tasks
+    - gtasks agent skills
+    - Google Tasks automation
+    - terminal task manager
+
+menu:
+  main:
+    - name: "Docs"
+      url: "/docs"
+      weight: 1
+    - name: "GitHub"
+      url: "https://github.com/BRO3886/gtasks"
+      weight: 2

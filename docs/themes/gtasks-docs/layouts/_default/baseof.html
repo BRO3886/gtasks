@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="">
+<head>
+  {{ partial "head-seo.html" . }}
+</head>
+<body>
+  {{ partial "nav.html" . }}
+  <main>
+    {{ block "main" . }}{{ end }}
+  </main>
+  {{ partial "footer.html" . }}
+  {{ $js := resources.Get "js/main.js" | minify }}
+  <script src="{{ $js.RelPermalink }}"></script>
+</body>
+</html>

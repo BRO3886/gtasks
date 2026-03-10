@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="doc-layout">
+  {{ partial "doc-sidebar.html" . }}
+  <div class="doc-content">
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="doc-subtitle">{{ . }}</p>{{ end }}
+    {{ .Content }}
+    <div class="card-grid">
+      {{ range .Pages }}
+        <a href="{{ .RelPermalink }}" class="doc-card">
+          <h3>{{ .Title }}</h3>
+          {{ with .Params.description }}<p>{{ . }}</p>{{ else }}{{ with .Params.summary }}<p>{{ . }}</p>{{ end }}{{ end }}
+        </a>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

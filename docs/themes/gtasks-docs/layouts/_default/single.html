@@ -1,0 +1,26 @@
+{{ define "main" }}
+<div class="doc-layout">
+  {{ partial "doc-sidebar.html" . }}
+  <article class="doc-content">
+    <h1>{{ .Title }}</h1>
+    {{ with .Description }}<p class="doc-subtitle">{{ . }}</p>{{ end }}
+    {{ .Content }}
+    <nav class="doc-nav">
+      {{ with .PrevInSection }}
+        <a href="{{ .RelPermalink }}" class="doc-nav-link prev">
+          <span class="doc-nav-direction">← Previous</span>
+          <span class="doc-nav-title">{{ .Title }}</span>
+        </a>
+      {{ else }}
+        <div></div>
+      {{ end }}
+      {{ with .NextInSection }}
+        <a href="{{ .RelPermalink }}" class="doc-nav-link next">
+          <span class="doc-nav-direction">Next →</span>
+          <span class="doc-nav-title">{{ .Title }}</span>
+        </a>
+      {{ end }}
+    </nav>
+  </article>
+</div>
+{{ end }}

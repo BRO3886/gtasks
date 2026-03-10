@@ -1,0 +1,85 @@
+# gtasks — Google Tasks CLI
+# https://gtasks.sidv.dev
+
+gtasks is an open-source, cross-platform CLI tool for managing Google Tasks from the terminal.
+Written in Go. MIT license. GitHub: https://github.com/BRO3886/gtasks
+
+## Install
+
+  curl -fsSL https://gtasks.sidv.dev/install | bash
+  # or
+  go install github.com/BRO3886/gtasks@latest
+
+## Authentication
+
+  gtasks login           # OAuth2 browser flow — stores token in system keyring
+  gtasks logout          # Remove stored token
+
+## Task List Commands
+
+  gtasks tasklists view                    # List all task lists
+  gtasks tasklists add -t "Work"           # Create a task list
+  gtasks tasklists rm                      # Delete a task list (interactive)
+
+## Task Commands
+
+  gtasks tasks view                        # View tasks (interactive list selection)
+  gtasks tasks view -l "Work"              # View tasks in specific list
+  gtasks tasks view --sort due             # Sort by due date (also: title, position)
+  gtasks tasks view --include-completed    # Include completed tasks (-i)
+  gtasks tasks view --format json          # Output as JSON (also: csv, table)
+  gtasks tasks view --max 10              # Limit results
+
+  gtasks tasks add -l "Work" -t "title" -d "tomorrow"   # Add task with due date
+  gtasks tasks add -t "title" --note "notes"             # Add with notes
+  gtasks tasks add -t "standup" -d "2025-02-10" --repeat daily --repeat-count 5  # Recurring
+
+  gtasks tasks done -l "Work" 1           # Mark task #1 done
+  gtasks tasks undo -l "Work" 1           # Mark task #1 incomplete
+  gtasks tasks rm -l "Work" 1             # Delete task #1
+  gtasks tasks info -l "Work" 1           # Full task details (notes, links)
+  gtasks tasks update 1 --title "new"     # Update task title
+  gtasks tasks clear -l "Work"            # Hide all completed tasks
+  gtasks tasks clear -l "Work" --force    # Skip confirmation
+
+## AI Agent Skills
+
+  gtasks skills status                    # Check skill installation status
+  gtasks skills install                   # Install for Claude Code (~/.claude/skills/)
+  gtasks skills install --agent codex     # Install for Codex (~/.agents/skills/)
+  gtasks skills uninstall --agent codex   # Uninstall
+
+  Supported agents: claude, codex, openclaw
+
+## AI Agent Setup (5 steps)
+
+  1. Install gtasks: curl -fsSL https://gtasks.sidv.dev/install | bash
+  2. Set credentials: export GTASKS_CLIENT_ID=... and GTASKS_CLIENT_SECRET=...
+  3. Authenticate: gtasks login
+  4. Install skill: gtasks skills install
+  5. Ask agent: "show my tasks due this week" or "add task X to my Work list"
+
+## Configuration
+
+  Config file: ~/.config/gtasks/config.toml  (or ~/.gtasks/config.toml legacy)
+
+  [credentials]
+  client_id     = "your-client-id.apps.googleusercontent.com"
+  client_secret = "your-client-secret"
+
+  [tasks]
+  default_task_list = "My Tasks"
+
+  Environment variables:
+    GTASKS_CLIENT_ID         — OAuth2 client ID
+    GTASKS_CLIENT_SECRET     — OAuth2 client secret
+    GTASKS_DEFAULT_TASKLIST  — default task list name
+    GTASKS_NO_UPDATE_CHECK   — disable update notifications
+
+## Links
+
+  Docs:     https://gtasks.sidv.dev
+  GitHub:   https://github.com/BRO3886/gtasks
+  Releases: https://github.com/BRO3886/gtasks/releases
+  Issues:   https://github.com/BRO3886/gtasks/issues
+  llms.txt: https://gtasks.sidv.dev/llms.txt

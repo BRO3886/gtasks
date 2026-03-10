@@ -1,8 +1,10 @@
 ---
 title: "Task commands"
+description: "View, add, complete, undo, update, and delete tasks with gtasks. Full command reference with examples."
 draft: false
 weight: 4
-summary: View, create, and delete tasks in a tasklist
+sitemap:
+  priority: 0.8
 ---
 
 ## Help command

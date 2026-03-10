@@ -1,0 +1,151 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
+<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="keywords" content="{{ range $i, $k := .Site.Params.keywords }}{{ if $i }}, {{ end }}{{ $k }}{{ end }}">
+<meta name="author" content="Siddhartha Varma">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ .Permalink }}">
+
+<!-- Open Graph -->
+<meta property="og:type" content="{{ if .IsHome }}website{{ else }}article{{ end }}">
+<meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}">
+<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:image" content="{{ .Site.BaseURL }}images/screenshot.png">
+<meta property="og:site_name" content="gtasks">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="{{ .Site.Params.twitter_handle }}">
+<meta name="twitter:creator" content="{{ .Site.Params.twitter_handle }}">
+<meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}">
+<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta name="twitter:image" content="{{ .Site.BaseURL }}images/screenshot.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/favicon.png">
+
+<!-- CSS -->
+{{ $css := resources.Get "css/style.css" | minify }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}">
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "gtasks",
+  "url": "{{ .Site.BaseURL }}",
+  "description": "{{ .Site.Params.description }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ .Site.BaseURL }}search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+<!-- JSON-LD: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "gtasks",
+  "operatingSystem": "macOS, Linux, Windows",
+  "applicationCategory": "ProductivityApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "description": "{{ .Site.Params.description }}",
+  "featureList": [
+    "View Google Tasks from terminal",
+    "Add and delete tasks via CLI",
+    "Mark tasks as complete",
+    "Multiple task list management",
+    "AI agent integration via skill files",
+    "Claude Code, Codex, and OpenClaw support",
+    "Flexible configuration (env vars, config file)",
+    "Cross-platform single binary",
+    "Secure OAuth2 with system keyring"
+  ],
+  "codeRepository": "{{ .Site.Params.github_url }}",
+  "author": {
+    "@type": "Person",
+    "name": "Siddhartha Varma",
+    "url": "https://sidv.dev"
+  },
+  "softwareVersion": "latest",
+  "downloadUrl": "{{ .Site.Params.github_url }}/releases/latest"
+}
+</script>
+
+{{ if .IsHome }}
+<!-- JSON-LD: FAQPage (homepage only) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is gtasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "gtasks is a command-line interface tool for managing Google Tasks directly from your terminal. It lets you view, add, complete, and delete tasks without leaving the terminal."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I install gtasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run: curl -fsSL https://gtasks.sidv.dev/install | bash — this installs the latest release to ~/.local/bin. You can also use go install github.com/BRO3886/gtasks@latest or download a binary from GitHub Releases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does authentication work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "gtasks uses Google OAuth2 with PKCE. Run 'gtasks login' and a browser window opens for authentication. Your token is stored securely in the system keyring (macOS Keychain, Linux Secret Service, Windows Credential Manager)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does gtasks work on macOS, Linux, and Windows?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. gtasks ships as a single static binary for macOS (Intel and Apple Silicon), Linux (amd64 and arm64), and Windows. No runtime dependencies required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can AI agents like Claude Code use gtasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. gtasks includes embedded skill files for Claude Code, Codex, and OpenClaw. Run 'gtasks skills install' to register the skill for Claude Code, 'gtasks skills install --agent codex' for Codex, or 'gtasks skills install --agent openclaw' for OpenClaw. Then ask your agent to manage tasks in plain English."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does gtasks sync with Google Tasks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. gtasks uses the official Google Tasks API, so all changes — adding, completing, or deleting tasks — sync instantly to Google Tasks and appear in Gmail, Google Calendar, and the Google Tasks app."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is gtasks open source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. gtasks is MIT-licensed and hosted on GitHub at https://github.com/BRO3886/gtasks. Contributions are welcome."
+      }
+    }
+  ]
+}
+</script>
+{{ end }}

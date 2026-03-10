@@ -12,3 +12,7 @@ specs/
 .env
 .DS_Store
 journals
+.hugo_build.lock
+docs/.hugo_build.lock
+docs/public/
+public/
