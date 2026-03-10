@@ -21,13 +21,16 @@ GTasks is a command-line interface tool for managing Google Tasks, written in Go
 - **OAuth2**: Authentication with Google services
 - **PromptUI**: Interactive prompts for user input
 - **TableWriter**: Formatted table output for task listings
+- **koanf**: Layered config loading (env vars > config file > build-time defaults)
+- **go-keyring**: System keyring storage for OAuth2 tokens (macOS Keychain, Linux Secret Service, Windows Credential Manager)
 
 ## Core Functionality
 
 ### Authentication (`api/auth.go`)
 
-- OAuth2 flow implementation for Google Tasks API
-- Token storage and retrieval from local filesystem
+- OAuth2 flow implementation using PKCE + localhost callback
+- Token stored in system keyring (go-keyring); falls back to `token.json` on headless systems
+- Existing `token.json` is auto-migrated to keyring on first use
 - Login/logout functionality
 - Service client creation for API calls
 
@@ -50,14 +53,27 @@ GTasks is a command-line interface tool for managing Google Tasks, written in Go
 
 ### OAuth2 Configuration
 
-- Uses hardcoded Google OAuth2 credentials for the CLI app
-- Stores user tokens in `~/.gtasks/token.json`
-- Configuration file: `~/.gtasks/config.json`
+- Credentials supplied via env vars (`GTASKS_CLIENT_ID`, `GTASKS_CLIENT_SECRET`), config file, or build-time `-ldflags`
+- Tokens stored in system keyring; falls back to `token.json` in config dir
 
-### Installation Locations
+### Configuration File
 
-- Detects installation path dynamically
-- Creates necessary directories for config and token storage
+Supports `config.toml`, `config.yaml`, or `config.json` in the config directory:
+
+```toml
+[credentials]
+client_id     = "..."
+client_secret = "..."
+
+[tasks]
+default_task_list = "My Tasks"
+```
+
+### Installation Locations (XDG)
+
+- New installs: `~/.config/gtasks/` (XDG Base Directory)
+- Existing installs: `~/.gtasks/` (legacy, kept for backwards compatibility)
+- If both exist, XDG wins and a migration warning is printed
 
 ## Command Structure
 
@@ -129,10 +145,12 @@ When implementing a new feature, follow this workflow:
 
 ### Key Files to Understand
 
-- `cmd/root.go:19-31` - Main CLI structure and help text
-- `api/auth.go:17-28` - Login flow implementation
-- `cmd/tasks.go:47-93` - Task viewing with table formatting
-- `internal/config/credentials.go:27-32` - OAuth2 config generation
+- `cmd/root.go` - Main CLI structure and help text
+- `api/auth.go` - Login flow, keyring token storage, migration
+- `cmd/tasks.go` - Task viewing with table formatting, default list resolution
+- `internal/config/credentials.go` - OAuth2 config generation
+- `internal/config/file.go` - koanf-based layered config loader
+- `internal/config/get_install_loc.go` - XDG + legacy config dir resolution
 
 ## API Integration
 
@@ -150,19 +168,21 @@ When implementing a new feature, follow this workflow:
 
 ## Notable Features
 
-- **Interactive Mode**: Prompts for task list selection when not specified
+- **Interactive Mode**: Prompts for task list selection when not specified; auto-selects when only one list exists
+- **Default Task List**: Configurable via `-l` flag, `GTASKS_DEFAULT_TASKLIST` env var, or config file
 - **Date Parsing**: Flexible date input using `dateparse` library
 - **Cross-platform**: Builds for multiple operating systems
 - **Table Output**: Formatted display of tasks with status indicators
 - **Sorting**: Multiple sort options for task views
 - **Documentation**: Hugo-based documentation website
+- **Layered Config**: koanf-based config supports toml/yaml/json, env vars, and build-time defaults
 
 ## Security Considerations
 
-- OAuth2 tokens stored locally with appropriate file permissions (0600)
-- Uses official Google OAuth2 flow
+- OAuth2 tokens stored in system keyring (not plaintext); falls back to file with 0600 perms
+- Uses official Google OAuth2 flow with PKCE
 - No sensitive data logged or exposed
-- Client credentials are for a registered Google Cloud project
+- Config file containing credentials should be chmod 600
 
 ## Personal Project Context
 

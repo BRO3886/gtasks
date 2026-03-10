@@ -20,7 +20,9 @@ summary: View, create, and delete tasks in a tasklist
 
         [WITHOUT LIST FLAG]
         gtasks tasks view|add|rm|done|undo|clear|info|update
-        * You would be prompted to select a tasklist
+        * Uses GTASKS_DEFAULT_TASKLIST env var or default_task_list from config if set
+        * Auto-selects if only one tasklist exists
+        * Otherwise prompts to select a tasklist
 
 Usage:
   gtasks tasks [command]

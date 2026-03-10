@@ -208,10 +208,11 @@ Use HOME instead of ~ in scripts:
 
 ```bash
 # Good
-TOKEN_FILE="$HOME/.gtasks/token.json"
+CONFIG_DIR="$HOME/.config/gtasks"   # XDG path (new installs)
+CONFIG_DIR="$HOME/.gtasks"          # Legacy path (existing installs)
 
 # Avoid
-TOKEN_FILE="~/.gtasks/token.json"  # May not expand in all contexts
+CONFIG_DIR="~/.gtasks"  # May not expand in all contexts
 ```
 
 ## Debugging
@@ -219,9 +220,6 @@ TOKEN_FILE="~/.gtasks/token.json"  # May not expand in all contexts
 Enable verbose output for troubleshooting:
 
 ```bash
-# Check if token file exists
-ls -la ~/.gtasks/token.json
-
 # Verify token is valid (login again if expired)
 gtasks login
 
@@ -230,13 +228,17 @@ gtasks tasklists view
 
 # Check command output
 gtasks tasks view -l "Work" --format=json | jq '.'
+
+# On headless systems where keyring is unavailable, token falls back to file:
+ls -la ~/.config/gtasks/token.json   # XDG path
+ls -la ~/.gtasks/token.json          # legacy path
 ```
 
 ## Security Considerations
 
-1. **Protect token file:**
+1. **Token is stored in system keyring** — no file to protect on most systems. On headless fallback:
 ```bash
-chmod 600 ~/.gtasks/token.json
+chmod 600 ~/.config/gtasks/token.json   # or ~/.gtasks/token.json for legacy installs
 ```
 
 2. **Don't commit tokens to version control:**

@@ -9,12 +9,9 @@ metadata:
   version: "1.0"
 required-env:
   - name: GTASKS_CLIENT_ID
-    description: Google OAuth2 client ID for the gtasks app
+    description: Google OAuth2 client ID — can also be set in config file under [credentials]
   - name: GTASKS_CLIENT_SECRET
-    description: Google OAuth2 client secret for the gtasks app
-required-config-paths:
-  - path: ~/.gtasks/token.json
-    description: OAuth2 token stored after successful login; permissions should be 0600
+    description: Google OAuth2 client secret — can also be set in config file under [credentials]
 allowed-tools: Bash(gtasks:*)
 ---
 
@@ -78,15 +75,23 @@ export GTASKS_CLIENT_SECRET="your-client-secret"
    - `http://localhost:9090/callback`
    - `http://localhost:9091/callback`
 
-**For persistent setup**, use a secrets manager or a `~/.env` file with restrictive permissions — do not commit these values to version control or add them to shared shell profile files:
+**For persistent setup**, the recommended approach is to add credentials to the gtasks config file:
+
+```toml
+# ~/.config/gtasks/config.toml  (new installs)
+# ~/.gtasks/config.toml          (legacy installs)
+[credentials]
+client_id     = "your-client-id.apps.googleusercontent.com"
+client_secret = "your-client-secret"
+```
+
+Set permissions: `chmod 600 ~/.config/gtasks/config.toml`
+
+Alternatively, export from your shell profile — do not commit these values to version control:
 
 ```bash
-# Recommended: store in a file with restricted permissions
-echo 'export GTASKS_CLIENT_ID="your-client-id"' >> ~/.gtasks_env
-echo 'export GTASKS_CLIENT_SECRET="your-client-secret"' >> ~/.gtasks_env
-chmod 600 ~/.gtasks_env
-# Source it from your shell profile
-echo 'source ~/.gtasks_env' >> ~/.zshrc
+export GTASKS_CLIENT_ID="your-client-id"
+export GTASKS_CLIENT_SECRET="your-client-secret"
 ```
 
 ### 3. Authentication
@@ -97,7 +102,7 @@ Once environment variables are set, authenticate with Google:
 gtasks login
 ```
 
-This will open a browser for OAuth2 authentication. The token is stored in `~/.gtasks/token.json` with 0600 permissions. Verify with `ls -la ~/.gtasks/token.json`. If you no longer need access, run `gtasks logout` to revoke and delete the token.
+This will open a browser for OAuth2 authentication. The token is stored in the system keyring (macOS Keychain, Linux Secret Service, Windows Credential Manager). On headless systems where no keyring is available, it falls back to a token file in the config directory. If you no longer need access, run `gtasks logout` to remove the stored token.
 
 ### 4. Optional: Install This Skill for Supported Agents
 
@@ -149,7 +154,7 @@ Opens browser for Google OAuth2 authentication. Required before using any other 
 ```bash
 gtasks logout
 ```
-Removes stored credentials from `~/.gtasks/token.json`.
+Removes stored credentials from the system keyring (and token file if present).
 
 ## Skill Management
 
@@ -227,7 +232,7 @@ Interactive prompt to select a task list and update its title.
 
 ## Task Management
 
-All task commands can optionally specify a task list using the `-l` flag. If omitted, you'll be prompted to select one interactively.
+All task commands can optionally specify a task list using the `-l` flag. If omitted, gtasks uses `GTASKS_DEFAULT_TASKLIST` env var or `tasks.default_task_list` from the config file. If only one list exists, it is selected automatically. Otherwise you'll be prompted interactively.
 
 ### View Tasks
 
