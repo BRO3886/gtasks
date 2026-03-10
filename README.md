@@ -109,18 +109,41 @@ To use GTasks, you need to set up Google OAuth2 credentials:
      - `http://localhost:9090/callback`
      - `http://localhost:9091/callback`
 
-5. Set environment variables:
+5. Supply credentials via environment variables:
 
 ```bash
 export GTASKS_CLIENT_ID="your-client-id.apps.googleusercontent.com"
 export GTASKS_CLIENT_SECRET="your-client-secret"
 ```
 
-Or create a `.env` file (for building from source).
+Or add them to `~/.config/gtasks/config.toml` (persistent, no shell profile changes needed):
 
-### Token Storage
+```toml
+[credentials]
+client_id     = "your-client-id.apps.googleusercontent.com"
+client_secret = "your-client-secret"
+```
 
-GTasks stores authentication tokens in `~/.gtasks/token.json`. This directory is created automatically on first login.
+Or create a `.env` file (for building from source only).
+
+### Token Storage and Configuration
+
+GTasks stores authentication tokens and the optional config file in the same directory.
+Discovery order (first existing directory wins):
+
+1. `$XDG_CONFIG_HOME/gtasks/` — XDG standard path; `XDG_CONFIG_HOME` defaults to `~/.config`
+2. `~/.gtasks/` — legacy path, used automatically when that directory already exists
+
+New installations use `~/.config/gtasks/` by default.
+
+**Files stored:**
+
+| File | Purpose |
+|------|---------|
+| `token.json` | OAuth2 token (created on `gtasks login`) |
+| `config.toml` | Optional configuration file (created manually) |
+
+See the [Configuration docs](https://gtasks.sidv.dev/docs/configuration/) for the full config file reference.
 
 - Usage
 

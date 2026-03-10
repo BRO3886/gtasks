@@ -17,28 +17,41 @@ var ClientID = ""
 // Note: For Google OAuth2, even "public" desktop clients require a client secret
 var ClientSecret = ""
 
-// GetOAuth2Config creates OAuth2 configuration for Google Tasks API
+// GetOAuth2Config creates OAuth2 configuration for Google Tasks API.
+//
+// Credential resolution order (highest priority first):
+//  1. GTASKS_CLIENT_ID / GTASKS_CLIENT_SECRET environment variables
+//  2. credentials.client_id / credentials.client_secret in config.toml
+//  3. Client ID / secret embedded at build time via -ldflags
 func GetOAuth2Config() (*oauth2.Config, error) {
-	// Try environment variable first for client ID
+	// 1. Environment variable
 	clientID := os.Getenv("GTASKS_CLIENT_ID")
+	// 2. Config file
 	if clientID == "" {
-		// Fall back to build-time injected client ID
+		clientID = appCfg.Credentials.ClientID
+	}
+	// 3. Build-time injected value
+	if clientID == "" {
 		clientID = ClientID
 	}
 
 	if clientID == "" {
-		return nil, fmt.Errorf("no client ID found. Set GTASKS_CLIENT_ID environment variable or rebuild with client ID")
+		return nil, fmt.Errorf("no client ID found. Set GTASKS_CLIENT_ID environment variable, add client_id under [credentials] in config.toml, or rebuild with client ID")
 	}
 
-	// Try environment variable first for client secret
+	// 1. Environment variable
 	clientSecret := os.Getenv("GTASKS_CLIENT_SECRET")
+	// 2. Config file
 	if clientSecret == "" {
-		// Fall back to build-time injected client secret
+		clientSecret = appCfg.Credentials.ClientSecret
+	}
+	// 3. Build-time injected value
+	if clientSecret == "" {
 		clientSecret = ClientSecret
 	}
 
 	if clientSecret == "" {
-		return nil, fmt.Errorf("no client secret found. Set GTASKS_CLIENT_SECRET environment variable or rebuild with client secret")
+		return nil, fmt.Errorf("no client secret found. Set GTASKS_CLIENT_SECRET environment variable, add client_secret under [credentials] in config.toml, or rebuild with client secret")
 	}
 
 	config := &oauth2.Config{
