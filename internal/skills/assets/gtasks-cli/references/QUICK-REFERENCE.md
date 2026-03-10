@@ -212,7 +212,7 @@ No,Title,Description,Status,Due
 
 | Error | Cause | Solution |
 |-------|-------|----------|
-| "command not found: gtasks" | GTasks not installed | Download from [releases](https://github.com/BRO3886/gtasks/releases) and add to PATH |
+| "command not found: gtasks" | GTasks not installed | Run `curl -fsSL https://gtasks.sidv.dev/install \| bash` or download from [releases](https://github.com/BRO3886/gtasks/releases) |
 | "Failed to get service" | Not authenticated or missing env vars | Check env vars, then run `gtasks login` |
 | Missing GTASKS_CLIENT_ID/SECRET | Environment variables not set | Export GTASKS_CLIENT_ID and GTASKS_CLIENT_SECRET |
 | "incorrect task-list name" | List doesn't exist | Check with `gtasks tasklists view` |

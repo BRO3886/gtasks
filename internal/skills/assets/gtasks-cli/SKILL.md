@@ -46,11 +46,23 @@ Get-Command gtasks
 
 **If gtasks is not installed:**
 
+**macOS/Linux (recommended):**
+```bash
+curl -fsSL https://gtasks.sidv.dev/install | bash
+```
+Installs to `~/.local/bin` by default. Set `INSTALL_DIR` to override:
+```bash
+INSTALL_DIR=/usr/local/bin curl -fsSL https://gtasks.sidv.dev/install | bash
+```
+
+**Manual install:**
 1. Download the binary for your system from [GitHub Releases](https://github.com/BRO3886/gtasks/releases)
-2. Install it:
-   - **macOS/Linux**: Move to `/usr/local/bin` or add to PATH
-   - **Windows**: Add to a folder in your PATH environment variable
-3. Verify installation: `gtasks --version`
+2. Move to a directory in your PATH (e.g. `~/.local/bin` or `/usr/local/bin`)
+3. `chmod +x gtasks`
+
+**Windows:** Download the binary from [GitHub Releases](https://github.com/BRO3886/gtasks/releases) and add to PATH.
+
+Verify installation: `gtasks --version`
 
 **IMPORTANT for Agents:** Always check if gtasks is installed before attempting to use it. If the command is not found, inform the user and provide installation instructions.
 
