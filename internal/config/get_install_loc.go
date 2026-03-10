@@ -21,33 +21,38 @@ func GetInstallLocation() string {
 	legacyDir := legacyConfigDir()
 
 	// Prefer XDG dir if it already exists
-	if xdgDir != "" {
-		if _, err := os.Stat(xdgDir); err == nil {
-			return xdgDir
-		}
+	xdgExists := xdgDir != "" && dirExists(xdgDir)
+	legacyExists := legacyDir != "" && dirExists(legacyDir)
+
+	// Warn if both exist — user may have files split across both dirs
+	if xdgExists && legacyExists {
+		utils.Warn("Both %s and %s exist. Using %s.\n", xdgDir, legacyDir, xdgDir)
+		utils.Warn("To migrate: mv %s/* %s/ && rm -rf %s\n", legacyDir, xdgDir, legacyDir)
 	}
 
-	// Fall back to legacy ~/.gtasks if it exists
-	if legacyDir != "" {
-		if _, err := os.Stat(legacyDir); err == nil {
-			return legacyDir
-		}
+	if xdgExists {
+		return xdgDir
+	}
+	if legacyExists {
+		return legacyDir
 	}
 
 	// Neither exists — create XDG dir for new installations
 	if xdgDir != "" {
 		if err := os.MkdirAll(xdgDir, 0755); err == nil {
 			return xdgDir
+		} else {
+			utils.ErrorP("Create XDG config directory %s: %v", xdgDir, err)
 		}
-		utils.ErrorP("Create XDG config directory %s: %s", xdgDir, "failed")
 	}
 
 	// Final fallback: create legacy dir
 	if legacyDir != "" {
 		if err := os.MkdirAll(legacyDir, 0755); err == nil {
 			return legacyDir
+		} else {
+			utils.ErrorP("Create config directory %s: %v", legacyDir, err)
 		}
-		utils.ErrorP("Create config directory %s: %s", legacyDir, "failed")
 	}
 
 	return ".gtasks" // unreachable in practice
@@ -76,4 +81,9 @@ func legacyConfigDir() string {
 		return ""
 	}
 	return filepath.Join(home, ".gtasks")
+}
+
+func dirExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
 }

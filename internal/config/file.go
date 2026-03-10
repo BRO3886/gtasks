@@ -28,6 +28,7 @@ var k = koanf.New(".")
 // A missing config file or .env file is silently ignored.
 // Malformed files log a warning and fall through to lower-priority sources.
 func LoadAppConfig() {
+	k = koanf.New(".") // reset so repeated calls don't accumulate state
 	cfgDir := GetInstallLocation()
 
 	// 3. Config file (lowest priority — loaded first, overridden by layers above)
@@ -69,7 +70,7 @@ func LoadAppConfig() {
 		case "default_tasklist":
 			return "tasks.default_task_list"
 		}
-		return s
+		return "" // skip unrecognized GTASKS_* vars
 	}), nil)
 }
 

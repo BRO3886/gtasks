@@ -1,17 +1,10 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/BRO3886/gtasks/internal/config"
 	"github.com/BRO3886/gtasks/internal/utils"
 	"github.com/spf13/cobra"
-
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 )
-
-var cfgFile string
 
 // version is set during build
 var Version = "DEV"
@@ -41,31 +34,8 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	viper.SetDefault("license", "apache")
 }
 
-// initConfig loads the gtasks config file and reads environment variables.
 func initConfig() {
-	// Load config.toml from the XDG/gtasks config directory.
 	config.LoadAppConfig()
-
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			utils.ErrorP("%v", err)
-		}
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".google-tasks-cli")
-	}
-
-	viper.AutomaticEnv()
-
-	// Suppress "config file not found" — the legacy viper config (.google-tasks-cli) is
-	// not used; gtasks reads its own config.toml via config.LoadAppConfig() above.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
-	}
 }
