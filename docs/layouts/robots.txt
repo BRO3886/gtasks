@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Sitemap: {{ .Site.BaseURL }}sitemap.xml
+# llms.txt protocol: https://llmstxt.org
+llms.txt: {{ .Site.BaseURL }}llms.txt

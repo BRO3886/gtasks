@@ -1,8 +1,10 @@
 ---
 title: "Logging In"
+description: "Authenticate gtasks with your Google account using OAuth2. Token stored securely in system keyring."
 draft: false
 weight: 3
-summary: Login to Google Tasks CLI with your Google Account
+sitemap:
+  priority: 0.8
 ---
 
 ## Prerequisites

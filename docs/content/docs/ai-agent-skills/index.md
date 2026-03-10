@@ -1,6 +1,9 @@
 ---
-title: 'AI Agent Skills'
-weight: 5
+title: "AI Agent Skills"
+description: "Use gtasks with Claude Code, Codex, and other AI agents. Install skill files for natural language task management."
+weight: 6
+sitemap:
+  priority: 0.8
 ---
 
 ## Overview

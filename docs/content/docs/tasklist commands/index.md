@@ -1,8 +1,10 @@
 ---
 title: "Tasklist commands"
+description: "View, create, update, and delete Google Task lists from the terminal with gtasks."
 draft: false
 weight: 3
-summary: View and create tasklists for currently signed-in account.
+sitemap:
+  priority: 0.8
 ---
 
 ## Help command

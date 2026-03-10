@@ -1,0 +1,12 @@
+<aside class="doc-sidebar">
+  <nav>
+    <div class="sidebar-heading">Getting Started</div>
+    {{ range where .Site.Pages "Section" "docs" }}
+      {{ if and (not .IsSection) (not .IsHome) }}
+        <a href="{{ .RelPermalink }}" class="sidebar-link{{ if eq .RelPermalink $.RelPermalink }} active{{ end }}">
+          {{ .Title }}
+        </a>
+      {{ end }}
+    {{ end }}
+  </nav>
+</aside>

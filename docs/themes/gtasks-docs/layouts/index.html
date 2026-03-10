@@ -1,0 +1,193 @@
+{{ define "main" }}
+<div class="with-grid">
+
+<!-- Hero -->
+<section class="hero" data-animate>
+  <div class="hero-eyebrow" data-fade="0">// open source &mdash; MIT &mdash; latest</div>
+  <h1 data-fade="1">
+    <span class="cmd">gtasks</span><br>Google Tasks,<br>in your terminal.
+  </h1>
+  <p class="hero-sub" data-fade="2">{{ .Site.Params.description }}</p>
+  <div class="hero-actions" data-fade="3">
+    <a href="/docs/installation" class="btn btn-primary">Get started</a>
+    <a href="{{ .Site.Params.github_url }}" class="btn btn-ghost" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </div>
+  <div class="install-strip" data-fade="4">
+    <span class="prompt">$</span>
+    <span class="cmd-text" id="hero-cmd">curl -fsSL https://gtasks.sidv.dev/install | bash</span>
+    <button class="copy-btn" data-copy="hero-cmd">copy</button>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- Features -->
+<section class="features">
+  <div class="features-inner">
+    <div class="section-kicker"><span>#</span> why gtasks</div>
+    <div class="features-grid">
+      <div class="feature-cell" data-stagger>
+        <div class="feature-glyph">01 /</div>
+        <h3>One command. Done.</h3>
+        <p>View, add, complete, delete. No browser tab, no context switch. Just your terminal.</p>
+      </div>
+      <div class="feature-cell" data-stagger>
+        <div class="feature-glyph">02 /</div>
+        <h3>AI agents speak gtasks</h3>
+        <p>Ships with skill files for Claude Code, Codex, and OpenClaw. Your agent can manage tasks without extra setup.</p>
+      </div>
+      <div class="feature-cell" data-stagger>
+        <div class="feature-glyph">03 /</div>
+        <h3>Real Google Tasks sync</h3>
+        <p>Official API. Changes appear in Gmail, Calendar, and the mobile app the moment you run the command.</p>
+      </div>
+      <div class="feature-cell" data-stagger>
+        <div class="feature-glyph">04 /</div>
+        <h3>Layered config</h3>
+        <p>Flags beat env vars beat config file. TOML, YAML, or JSON — use whatever fits your workflow.</p>
+      </div>
+      <div class="feature-cell" data-stagger>
+        <div class="feature-glyph">05 /</div>
+        <h3>Single binary</h3>
+        <p>No runtime. No deps. macOS, Linux, Windows. curl-install or go install — done in 10 seconds.</p>
+      </div>
+      <div class="feature-cell" data-stagger>
+        <div class="feature-glyph">06 /</div>
+        <h3>Keyring auth</h3>
+        <p>OAuth2 + PKCE. Token lives in macOS Keychain, Linux Secret Service, or Windows Credential Manager.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Agent section -->
+<section class="agent-section">
+  <div class="agent-inner">
+    <div class="agent-copy" data-slide-in>
+      <div class="section-kicker"><span>#</span> ai-first</div>
+      <h2>Let your agent<br>handle the <em>list</em></h2>
+      <p>gtasks embeds skill files for Claude Code, Codex, and OpenClaw. Install once, then ask in plain English.</p>
+      <ul class="steps">
+        <li class="step-row">
+          <span class="step-n">01</span>
+          Install gtasks and run <code>gtasks login</code>
+        </li>
+        <li class="step-row">
+          <span class="step-n">02</span>
+          Run <code>gtasks skills install</code> to register the skill
+        </li>
+        <li class="step-row">
+          <span class="step-n">03</span>
+          Ask Claude: "add deploy v2 to Work list, due Friday"
+        </li>
+        <li class="step-row">
+          <span class="step-n">04</span>
+          Agent runs the command. Task syncs to Google.
+        </li>
+      </ul>
+    </div>
+    <div class="terminal" data-slide-in-right>
+      <div class="terminal-bar">
+        <span class="tbar-dot"></span>
+        <span class="tbar-dot"></span>
+        <span class="tbar-dot"></span>
+        <span class="tbar-label">claude code</span>
+      </div>
+      <div class="terminal-body">
+        <span class="tl tl-user">❯ add task: deploy v2 due friday</span>
+        <span class="tl tl-spacer"></span>
+        <span class="tl tl-note"># using gtasks skill...</span>
+        <span class="tl tl-spacer"></span>
+        <span class="tl"><span class="tl-prompt">$ </span><span class="tl-cmd">gtasks tasks add \</span></span>
+        <span class="tl tl-cmd">&nbsp;&nbsp;-l "Work" -t "deploy v2" -d "friday"</span>
+        <span class="tl tl-out">✓ Task added to Work</span>
+        <span class="tl tl-spacer"></span>
+        <span class="tl tl-agent">Done. "deploy v2" added, due Friday.</span>
+        <span class="tl tl-spacer"></span>
+        <span class="tl tl-user">❯ what's due this week?</span>
+        <span class="tl tl-spacer"></span>
+        <span class="tl"><span class="tl-prompt">$ </span><span class="tl-cmd">gtasks tasks view \</span></span>
+        <span class="tl tl-cmd">&nbsp;&nbsp;-l "Work" --sort due</span>
+        <span class="tl tl-out">Wed  team sync</span>
+        <span class="tl tl-out">Fri  deploy v2</span>
+        <span class="tl tl-spacer"></span>
+        <span class="tl tl-agent">2 tasks this week: team sync Wed, deploy v2 Fri.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Install tabs -->
+<section class="install-section">
+  <div class="install-inner">
+    <div class="section-kicker"><span>#</span> install</div>
+    <h2>Up in 60 seconds.</h2>
+    <div class="tab-row">
+      <button class="tab-btn active" data-tab="curl">curl</button>
+      <button class="tab-btn" data-tab="go">go install</button>
+      <button class="tab-btn" data-tab="manual">manual</button>
+    </div>
+    <div id="tab-curl" class="tab-panel active">
+      <pre><span class="cmt"># installs to ~/.local/bin</span>
+curl -fsSL https://gtasks.sidv.dev/install | bash
+
+<span class="cmt"># custom location</span>
+INSTALL_DIR=/usr/local/bin curl -fsSL https://gtasks.sidv.dev/install | bash</pre>
+    </div>
+    <div id="tab-go" class="tab-panel">
+      <pre><span class="cmt"># requires Go 1.21+</span>
+go install github.com/BRO3886/gtasks@latest</pre>
+    </div>
+    <div id="tab-manual" class="tab-panel">
+      <pre><span class="cmt"># download the tarball for your platform from GitHub Releases</span>
+<span class="cmt"># e.g. gtasks_mac_arm64_vX.Y.Z.tar.gz, then:</span>
+tar -xzf gtasks_*.tar.gz
+mv gtasks ~/.local/bin/
+gtasks --version</pre>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="faq-inner">
+    <div class="section-kicker"><span>#</span> faq</div>
+    <h2>Common questions.</h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>What is gtasks? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">A CLI for Google Tasks. View, add, complete, and delete tasks from your terminal. All changes sync to Gmail, Google Calendar, and the mobile Tasks app instantly.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How do I install it? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">Fastest: <code>curl -fsSL https://gtasks.sidv.dev/install | bash</code>. Also available via <code>go install github.com/BRO3886/gtasks@latest</code> or as a binary from <a href="https://github.com/BRO3886/gtasks/releases">GitHub Releases</a>.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How does authentication work? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">Run <code>gtasks login</code>. A browser opens for Google OAuth2 (PKCE flow). Your token goes into the system keyring — macOS Keychain, Linux Secret Service, Windows Credential Manager. Nothing written to plaintext.</div>
+      </details>
+      <details class="faq-item">
+        <summary>macOS, Linux, Windows? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">Yes. Single static binary for each. macOS Intel and Apple Silicon, Linux amd64 and arm64, Windows. No runtime, no dependencies.</div>
+      </details>
+      <details class="faq-item">
+        <summary>How do AI agents use gtasks? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">Run <code>gtasks skills install</code> (Claude Code), <code>gtasks skills install --agent codex</code> (Codex), or <code>gtasks skills install --agent openclaw</code> (OpenClaw). The embedded skill file teaches the agent every command. After that, just ask in plain English.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Does it sync with Google? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">Uses the official Google Tasks API. Every add, complete, or delete syncs immediately and shows up everywhere Google surfaces tasks.</div>
+      </details>
+      <details class="faq-item">
+        <summary>Is it open source? <span class="faq-icon">+</span></summary>
+        <div class="faq-body">MIT license. <a href="https://github.com/BRO3886/gtasks">github.com/BRO3886/gtasks</a>. Issues and PRs welcome.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</div>
+{{ end }}
