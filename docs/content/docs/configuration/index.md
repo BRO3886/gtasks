@@ -5,7 +5,7 @@ weight: 5
 summary: Configure gtasks with a config file, environment variables, or build-time flags
 ---
 
-GTasks supports configuration through a TOML file, environment variables, and CLI flags.
+GTasks supports configuration through a config file, environment variables, and CLI flags.
 Each layer can override the one below it:
 
 ```
@@ -15,48 +15,46 @@ CLI flag  >  environment variable  >  config file  >  build-time default
 ## Config file location
 
 GTasks follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html).
-The config file is named **`config.toml`** and is found by checking these directories in order:
+The config file is looked for in these directories in order:
 
 | Priority | Path | Notes |
 |----------|------|-------|
-| 1 | `$XDG_CONFIG_HOME/gtasks/config.toml` | XDG standard path; `XDG_CONFIG_HOME` defaults to `~/.config` |
-| 2 | `~/.gtasks/config.toml` | Legacy path; used automatically when the `~/.gtasks/` directory already exists |
+| 1 | `$XDG_CONFIG_HOME/gtasks/` | XDG standard path; `XDG_CONFIG_HOME` defaults to `~/.config` |
+| 2 | `~/.gtasks/` | Legacy path; used automatically when that directory already exists |
 
-New installations always use the XDG path (`~/.config/gtasks/` by default). Existing
-installations that already have a `~/.gtasks/` directory continue using it without any
-changes. To migrate, move the directory and set `XDG_CONFIG_HOME` if needed.
+New installations use `~/.config/gtasks/` by default. Existing installations that already have `~/.gtasks/` continue using it. If both exist, XDG wins and gtasks prints a migration warning with the exact command to move your files.
 
-Authentication tokens (`token.json`) are stored alongside `config.toml` in the same directory.
+> **Note:** Authentication tokens are stored in the **system keyring**, not on disk. On headless systems where no keyring is available, the token falls back to a `token.json` file in the config directory.
 
 ## Creating the config file
-
-Create the file manually:
 
 ```bash
 mkdir -p ~/.config/gtasks
 touch ~/.config/gtasks/config.toml
+chmod 600 ~/.config/gtasks/config.toml  # recommended if storing credentials
 ```
 
 ## Config file format
 
-The file uses [TOML](https://toml.io) syntax. All keys are optional — omit any section
-or key you do not need.
+gtasks supports **TOML**, **YAML**, and **JSON** — the first file found wins:
+
+- `config.toml`
+- `config.yaml` / `config.yml`
+- `config.json`
+
+All keys are optional — omit any section or key you do not need.
 
 ```toml
-# GTasks configuration file
-# Location: $XDG_CONFIG_HOME/gtasks/config.toml  (usually ~/.config/gtasks/config.toml)
-#           ~/.gtasks/config.toml                 (legacy path, used when ~/.gtasks/ exists)
+# GTasks configuration file (~/.config/gtasks/config.toml)
 
 [credentials]
-# OAuth2 client ID for the Google Tasks API.
-# Only required when you are building gtasks from source with your own Google Cloud project.
+# Google OAuth2 client ID — required to use gtasks.
 # Overridden by: GTASKS_CLIENT_ID environment variable.
-# client_id = "your-client-id.apps.googleusercontent.com"
+client_id = "your-client-id.apps.googleusercontent.com"
 
-# OAuth2 client secret for the Google Tasks API.
-# Only required when you are building gtasks from source with your own Google Cloud project.
+# Google OAuth2 client secret — required to use gtasks.
 # Overridden by: GTASKS_CLIENT_SECRET environment variable.
-# client_secret = "your-client-secret"
+client_secret = "your-client-secret"
 
 [tasks]
 # Default task list to use when the -l / --tasklist flag is not provided.
@@ -69,8 +67,7 @@ or key you do not need.
 
 ### `[credentials]`
 
-These settings are needed only when building gtasks from source with your own Google Cloud
-project. Released binaries have credentials embedded at build time.
+Required for all users. gtasks does not ship with embedded credentials — you must supply your own Google OAuth2 client ID and secret.
 
 | Key | Type | Env var override | Description |
 |-----|------|-----------------|-------------|
@@ -105,7 +102,7 @@ gtasks tasks add -t "Finish report"
 gtasks tasks view -l "Personal"
 ```
 
-### Supply credentials for a custom build
+### Supply credentials
 
 ```toml
 [credentials]
@@ -113,8 +110,8 @@ client_id     = "123456789-abc.apps.googleusercontent.com"
 client_secret = "GOCSPX-xxxxxxxxxxxxxxxxxxxxxxx"
 ```
 
-This is equivalent to setting the `GTASKS_CLIENT_ID` and `GTASKS_CLIENT_SECRET` environment
-variables, but stored persistently in the config file.
+This is equivalent to setting `GTASKS_CLIENT_ID` and `GTASKS_CLIENT_SECRET` as environment
+variables, but stored persistently in the config file. Recommended: `chmod 600` the file.
 
 ## Environment variables
 

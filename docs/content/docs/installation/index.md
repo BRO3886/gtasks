@@ -6,16 +6,17 @@ summary: "Download binary from [releases](https://github.com/BRO3886/google-task
 ---
 
 
-If you have [Go](https://golang.org/) installed, you can download using:
+If you have [Go](https://golang.org/) installed, you can install using:
 
 ```bash
-go get github.com/BRO3886/gtasks
+go install github.com/BRO3886/gtasks@latest
 ```
-or you can download the binary: 
 
-1. Download the binary for your system (check [releases](https://github.com/BRO3886/google-tasks-cli/releases))
-2. Add the binary location to `PATH`
-   1. Move the binary to a particular folder, for eg Documents
-   2. Append the absolute path (use ```pwd```) of the folder to ```PATH```
-   3. Execute ```gtasks``` from anywhere
+Or download a pre-built binary:
+
+1. Download the binary for your system from [GitHub Releases](https://github.com/BRO3886/gtasks/releases)
+2. Add the binary to your `PATH`:
+   - **macOS/Linux**: `mv gtasks /usr/local/bin/`
+   - **Windows**: Move to a folder already in your PATH, or add its folder to PATH
+3. Verify: `gtasks --version`
 
