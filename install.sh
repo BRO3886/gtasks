@@ -5,7 +5,7 @@ set -euo pipefail
 # Usage: curl -fsSL https://gtasks.sidv.dev/install | bash
 
 REPO="BRO3886/gtasks"
-INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 BINARY_NAME="gtasks"
 
 info()  { printf "\033[36m%s\033[0m\n" "$*"; }
@@ -72,6 +72,7 @@ tar -xzf "${TMPDIR_PATH}/${ASSET_NAME}" -C "${TMPDIR_PATH}"
 
 # --- Install ---
 
+mkdir -p "$INSTALL_DIR"
 if [ -w "$INSTALL_DIR" ]; then
     mv "${TMPDIR_PATH}/${BINARY_NAME}" "${INSTALL_DIR}/${BINARY_NAME}"
 else
