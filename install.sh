@@ -19,8 +19,7 @@ ARCH="$(uname -m)"
 case "$OS" in
     Darwin) OS_KEY="mac" ;;
     Linux)  OS_KEY="linux" ;;
-    MINGW*|MSYS*|CYGWIN*) OS_KEY="win" ;;
-    *) error "Unsupported OS: $OS" ;;
+    *) error "Unsupported OS: $OS. For Windows, download the binary from https://github.com/${REPO}/releases" ;;
 esac
 
 case "$ARCH" in
@@ -28,11 +27,6 @@ case "$ARCH" in
     x86_64)        ARCH_KEY="amd64" ;;
     *) error "Unsupported architecture: $ARCH" ;;
 esac
-
-# Windows ships as a single amd64 archive
-if [ "$OS_KEY" = "win" ]; then
-    BINARY_NAME="gtasks.exe"
-fi
 
 if ! command -v curl >/dev/null 2>&1; then
     error "curl is required but not found"
@@ -57,13 +51,8 @@ info "Latest version: $LATEST"
 #   gtasks_mac_amd64_<version>.tar.gz
 #   gtasks_linux_arm64_<version>.tar.gz
 #   gtasks_linux_amd64_<version>.tar.gz
-#   gtasks_win_<version>.tar.gz  (amd64 only)
 
-if [ "$OS_KEY" = "win" ]; then
-    ASSET_NAME="gtasks_win_${LATEST}.tar.gz"
-else
-    ASSET_NAME="gtasks_${OS_KEY}_${ARCH_KEY}_${LATEST}.tar.gz"
-fi
+ASSET_NAME="gtasks_${OS_KEY}_${ARCH_KEY}_${LATEST}.tar.gz"
 
 DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST}/${ASSET_NAME}"
 
