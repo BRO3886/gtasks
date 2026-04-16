@@ -1,0 +1,101 @@
+name: Update Homebrew formula
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-tap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for release assets
+        run: sleep 30
+
+      - name: Get release info
+        id: release
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Download and checksum
+        id: checksums
+        run: |
+          MAC_ARM_URL="https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_mac_arm64_${{ github.ref_name }}.tar.gz"
+          MAC_AMD_URL="https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_mac_amd64_${{ github.ref_name }}.tar.gz"
+          LINUX_ARM_URL="https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_linux_arm64_${{ github.ref_name }}.tar.gz"
+          LINUX_AMD_URL="https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_linux_amd64_${{ github.ref_name }}.tar.gz"
+          curl -sL "$MAC_ARM_URL" -o mac_arm64.tar.gz
+          curl -sL "$MAC_AMD_URL" -o mac_amd64.tar.gz
+          curl -sL "$LINUX_ARM_URL" -o linux_arm64.tar.gz
+          curl -sL "$LINUX_AMD_URL" -o linux_amd64.tar.gz
+          echo "mac_arm64_sha=$(shasum -a 256 mac_arm64.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "mac_amd64_sha=$(shasum -a 256 mac_amd64.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "linux_arm64_sha=$(shasum -a 256 linux_arm64.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          echo "linux_amd64_sha=$(shasum -a 256 linux_amd64.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tap
+        uses: actions/checkout@v4
+        with:
+          repository: BRO3886/homebrew-tap
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          path: homebrew-tap
+
+      - name: Update formula
+        run: |
+          VERSION="${{ steps.release.outputs.version }}"
+          TAG="${{ github.ref_name }}"
+          MAC_ARM_SHA="${{ steps.checksums.outputs.mac_arm64_sha }}"
+          MAC_AMD_SHA="${{ steps.checksums.outputs.mac_amd64_sha }}"
+          LINUX_ARM_SHA="${{ steps.checksums.outputs.linux_arm64_sha }}"
+          LINUX_AMD_SHA="${{ steps.checksums.outputs.linux_amd64_sha }}"
+          cat > homebrew-tap/Formula/gtasks.rb <<EOF
+          class Gtasks < Formula
+            desc "CLI tool for Google Tasks"
+            homepage "https://github.com/BRO3886/gtasks"
+            version "${VERSION}"
+            license "MIT"
+
+            on_macos do
+              on_arm do
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_mac_arm64_${TAG}.tar.gz"
+                sha256 "${MAC_ARM_SHA}"
+              end
+
+              on_intel do
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_mac_amd64_${TAG}.tar.gz"
+                sha256 "${MAC_AMD_SHA}"
+              end
+            end
+
+            on_linux do
+              on_arm do
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_linux_arm64_${TAG}.tar.gz"
+                sha256 "${LINUX_ARM_SHA}"
+              end
+
+              on_intel do
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_linux_amd64_${TAG}.tar.gz"
+                sha256 "${LINUX_AMD_SHA}"
+              end
+            end
+
+            def install
+              bin.install "gtasks"
+            end
+
+            test do
+              assert_match version.to_s, shell_output("\#{bin}/gtasks --version")
+            end
+          end
+          EOF
+          sed -i 's/^          //' homebrew-tap/Formula/gtasks.rb
+
+      - name: Commit and push
+        run: |
+          cd homebrew-tap
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/gtasks.rb
+          git diff --cached --quiet && echo "No changes" && exit 0
+          git commit -m "feat: bump gtasks to ${{ steps.release.outputs.version }}"
+          git push
