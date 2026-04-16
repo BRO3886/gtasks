@@ -42,34 +42,40 @@ jobs:
 
       - name: Update formula
         run: |
-          cat > homebrew-tap/Formula/gtasks.rb << 'FORMULA'
+          VERSION="${{ steps.release.outputs.version }}"
+          TAG="${{ github.ref_name }}"
+          MAC_ARM_SHA="${{ steps.checksums.outputs.mac_arm64_sha }}"
+          MAC_AMD_SHA="${{ steps.checksums.outputs.mac_amd64_sha }}"
+          LINUX_ARM_SHA="${{ steps.checksums.outputs.linux_arm64_sha }}"
+          LINUX_AMD_SHA="${{ steps.checksums.outputs.linux_amd64_sha }}"
+          cat > homebrew-tap/Formula/gtasks.rb <<EOF
           class Gtasks < Formula
             desc "CLI tool for Google Tasks"
             homepage "https://github.com/BRO3886/gtasks"
-            version "${{ steps.release.outputs.version }}"
+            version "${VERSION}"
             license "MIT"
 
             on_macos do
               on_arm do
-                url "https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_mac_arm64_${{ github.ref_name }}.tar.gz"
-                sha256 "${{ steps.checksums.outputs.mac_arm64_sha }}"
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_mac_arm64_${TAG}.tar.gz"
+                sha256 "${MAC_ARM_SHA}"
               end
 
               on_intel do
-                url "https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_mac_amd64_${{ github.ref_name }}.tar.gz"
-                sha256 "${{ steps.checksums.outputs.mac_amd64_sha }}"
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_mac_amd64_${TAG}.tar.gz"
+                sha256 "${MAC_AMD_SHA}"
               end
             end
 
             on_linux do
               on_arm do
-                url "https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_linux_arm64_${{ github.ref_name }}.tar.gz"
-                sha256 "${{ steps.checksums.outputs.linux_arm64_sha }}"
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_linux_arm64_${TAG}.tar.gz"
+                sha256 "${LINUX_ARM_SHA}"
               end
 
               on_intel do
-                url "https://github.com/BRO3886/gtasks/releases/download/${{ github.ref_name }}/gtasks_linux_amd64_${{ github.ref_name }}.tar.gz"
-                sha256 "${{ steps.checksums.outputs.linux_amd64_sha }}"
+                url "https://github.com/BRO3886/gtasks/releases/download/${TAG}/gtasks_linux_amd64_${TAG}.tar.gz"
+                sha256 "${LINUX_AMD_SHA}"
               end
             end
 
@@ -78,10 +84,10 @@ jobs:
             end
 
             test do
-              assert_match version.to_s, shell_output("#{bin}/gtasks --version")
+              assert_match version.to_s, shell_output("\#{bin}/gtasks --version")
             end
           end
-          FORMULA
+          EOF
           sed -i 's/^          //' homebrew-tap/Formula/gtasks.rb
 
       - name: Commit and push
