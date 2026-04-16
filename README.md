@@ -32,7 +32,14 @@ gtasks skills uninstall --agent codex
 
 ## Installation
 
-**macOS / Linux (recommended):**
+### Homebrew
+
+```bash
+brew tap BRO3886/tap
+brew install gtasks
+```
+
+**macOS / Linux (install script):**
 
 ```bash
 curl -fsSL https://gtasks.sidv.dev/install | bash
