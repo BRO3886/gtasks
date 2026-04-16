@@ -126,11 +126,17 @@
     <div class="section-kicker"><span>#</span> install</div>
     <h2>Up in 60 seconds.</h2>
     <div class="tab-row">
-      <button class="tab-btn active" data-tab="curl">curl</button>
+      <button class="tab-btn active" data-tab="brew">homebrew</button>
+      <button class="tab-btn" data-tab="curl">curl</button>
       <button class="tab-btn" data-tab="go">go install</button>
       <button class="tab-btn" data-tab="manual">manual</button>
     </div>
-    <div id="tab-curl" class="tab-panel active">
+    <div id="tab-brew" class="tab-panel active">
+      <pre><span class="cmt"># recommended</span>
+brew tap BRO3886/tap
+brew install gtasks</pre>
+    </div>
+    <div id="tab-curl" class="tab-panel">
       <pre><span class="cmt"># installs to ~/.local/bin</span>
 curl -fsSL https://gtasks.sidv.dev/install | bash
 
@@ -163,7 +169,7 @@ gtasks --version</pre>
       </details>
       <details class="faq-item">
         <summary>How do I install it? <span class="faq-icon">+</span></summary>
-        <div class="faq-body">Fastest: <code>curl -fsSL https://gtasks.sidv.dev/install | bash</code>. Also available via <code>go install github.com/BRO3886/gtasks@latest</code> or as a binary from <a href="https://github.com/BRO3886/gtasks/releases">GitHub Releases</a>.</div>
+        <div class="faq-body">Fastest: <code>brew tap BRO3886/tap && brew install gtasks</code>. Also available via <code>curl -fsSL https://gtasks.sidv.dev/install | bash</code>, <code>go install github.com/BRO3886/gtasks@latest</code>, or as a binary from <a href="https://github.com/BRO3886/gtasks/releases">GitHub Releases</a>.</div>
       </details>
       <details class="faq-item">
         <summary>How does authentication work? <span class="faq-icon">+</span></summary>

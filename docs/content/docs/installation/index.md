@@ -8,7 +8,14 @@ sitemap:
 ---
 
 
-## macOS / Linux (recommended)
+## Homebrew (recommended)
+
+```bash
+brew tap BRO3886/tap
+brew install gtasks
+```
+
+## macOS / Linux
 
 ```bash
 curl -fsSL https://gtasks.sidv.dev/install | bash
