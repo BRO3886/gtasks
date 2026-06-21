@@ -177,6 +177,16 @@ When implementing a new feature, follow this workflow:
 - **Documentation**: Hugo-based documentation website hosted on Cloudflare Pages at `https://gtasks.sidv.dev`; files in `docs/static/` are served directly (e.g. `docs/static/install` → `https://gtasks.sidv.dev/install`)
 - **Layered Config**: koanf-based config supports toml/yaml/json, env vars, and build-time defaults
 
+## IndexNow (search engine ping)
+
+Run `make indexnow` after any deploy that changes site content. This submits every URL from the live sitemap to `api.indexnow.org`, which fans the ping out to Bing/Microsoft, Yandex, Naver, Seznam, and Yep.
+
+**Two places that must stay in sync** — if you rotate the key, update both:
+1. `docs/static/90e15529db5244b65c00981ce58d7aca.txt` — filename stem and file contents must equal the key
+2. `KEY` variable in `scripts/indexnow.sh`
+
+The submission only works once the key file is deployed (Cloudflare Pages). The IndexNow GET endpoint returns 200/202 immediately and verifies the key file asynchronously when it crawls.
+
 ## Security Considerations
 
 - OAuth2 tokens stored in system keyring (not plaintext); falls back to file with 0600 perms
