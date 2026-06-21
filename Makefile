@@ -81,7 +81,10 @@ endif
 release:
 	gh release create $(v) 'bin/releases/gtasks_linux_amd64_$(v).tar.gz' 'bin/releases/gtasks_linux_arm64_$(v).tar.gz' 'bin/releases/gtasks_win_$(v).tar.gz' 'bin/releases/gtasks_mac_amd64_$(v).tar.gz' 'bin/releases/gtasks_mac_arm64_$(v).tar.gz'
 
+indexnow:
+	@sh scripts/indexnow.sh
+
 clean:
 	rm -rf bin/ gtasks
 
-.PHONY: dev windows linux mac all release clean
+.PHONY: dev windows linux mac all release clean indexnow
