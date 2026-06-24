@@ -1,6 +1,6 @@
 ---
 title: "Documentation"
-description: "Complete documentation for gtasks — the Google Tasks CLI tool."
+description: "Complete documentation for gtasks, the Go-based Google Tasks CLI: installation, OAuth2 login, and commands to manage task lists and tasks from the terminal."
 weight: 1
 sitemap:
   priority: 0.9

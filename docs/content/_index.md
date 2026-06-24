@@ -1,6 +1,6 @@
 ---
 title: "gtasks — Google Tasks CLI"
-description: "Manage Google Tasks from the terminal. View, add, complete, and delete tasks with one command."
+description: "gtasks is a fast Google Tasks CLI written in Go. View, add, complete, and delete tasks and task lists from your terminal, and let AI agents manage them too."
 keywords:
   - Google Tasks CLI
   - gtasks
