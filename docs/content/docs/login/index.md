@@ -1,6 +1,6 @@
 ---
 title: "Logging In"
-description: "Authenticate gtasks with your Google account using OAuth2. Token stored securely in system keyring."
+description: "Authenticate gtasks with your Google account over OAuth2. Set client credentials via environment variables or a config file; tokens stay in the system keyring."
 draft: false
 weight: 3
 sitemap:

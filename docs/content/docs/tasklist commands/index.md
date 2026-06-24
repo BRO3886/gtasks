@@ -1,6 +1,6 @@
 ---
 title: "Tasklist commands"
-description: "View, create, update, and delete Google Task lists from the terminal with gtasks."
+description: "Manage Google task lists from the terminal with gtasks: view, create, update, and delete tasklists, and see inline help for every tasklist command you can run."
 draft: false
 weight: 3
 sitemap:
